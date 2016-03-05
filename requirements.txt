@@ -1,6 +1,9 @@
+coverage==4.0.3
 decorator==4.0.9
+eventlet==0.18.4
 Flask==0.10.1
 Flask-SocketIO==2.1
+greenlet==0.4.9
 imgurpython==1.1.7
 itsdangerous==0.24
 Jinja2==2.8
