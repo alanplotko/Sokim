@@ -1,0 +1,27 @@
+<html>
+    <head>
+        {% include 'head.html' %}
+    </head>
+    <body>
+        <h2>Sokim rules: </h2>
+        <pre> Sokim is an online implementation of the board game 'Dixit' (pronouced Diceit)
+            Starting:
+                Every player draws 6 paintings.
+                Decide who will start
+            Game Loop:
+                The current 'storyteller' chooses a painting and describes it to the other players. They then place their card face down on the table.
+                The other players now choose a card which they think will stump the others.
+                Once everyone places in a card, they are flipped.
+                All players vote anonymously on which card they believe was the storyteller's.(You cant vote for your own image)
+            Scoring:
+                If all players have found the correct image or none did:
+                    everyone but the storyteller gets two points
+                else:
+                    storyteller gets 3 points
+                    each player who guessed correctly gets 3 points
+                All players but the storyteller get a bonus point for anyone who guessed their painting.
+            Game End:
+                The game ends when the deck runs out, or a person hits 30 points the game ends. Player with the most points wins.
+        </pre>
+    </body>
+</html>

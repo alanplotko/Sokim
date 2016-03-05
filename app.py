@@ -65,6 +65,15 @@ def index():
         thread.start()
     return render_template('index.html')
 
+@app.route('/rules/')
+def rules():
+    global thread
+    if thread is None:
+        thread = Thread(target=background_thread)
+        thread.daemon = True
+        thread.start()
+    return render_template('rules.html')
+
 
 @socketio.on('my event', namespace='/test')
 def test_message(message):
