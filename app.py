@@ -87,10 +87,10 @@ def test_broadcast_message(message):
 def join(message):
     session['username'] = message['username']
     join_room(message['room'])
-    socketio.send(session['username'] + ' has entered the room.', room=message['room'])
+    socketio.send('<span class="username">Deceit</span>: ' + session['username'] + ' has entered the room.', room=message['room'])
     session['receive_count'] = session.get('receive_count', 0) + 1
     emit('my response',
-         {'data': 'Welcome to the channel: ' + message['room'],
+         {'data': '<span class="username">Deceit</span>: Welcome to the channel: ' + message['room'],
           'count': session['receive_count']})
 
 @socketio.on('leave', namespace='/test')
@@ -115,7 +115,7 @@ def close(message):
 def send_room_message(message):
     session['receive_count'] = session.get('receive_count', 0) + 1
     emit('my response',
-         {'data': message['data'], 'count': session['receive_count']},
+         {'data': '<span class="username">' + session.get('username', '') + '</span>: ' + message['data'], 'count': session['receive_count']},
          room=message['room'])
 
 
@@ -123,13 +123,13 @@ def send_room_message(message):
 def disconnect_request():
     session['receive_count'] = session.get('receive_count', 0) + 1
     emit('my response',
-         {'data': 'Disconnected!', 'count': session['receive_count']})
+         {'data': '<span class="username">Deceit</span>: Disconnected!', 'count': session['receive_count']})
     disconnect()
 
 
 @socketio.on('connect', namespace='/test')
 def test_connect():
-    emit('my response', {'data': 'Establishing connection...', 'count': 0})
+    emit('my response', {'data': '<span class="username">Deceit</span>: Establishing connection...', 'count': 0})
 
 
 @socketio.on('disconnect', namespace='/test')
