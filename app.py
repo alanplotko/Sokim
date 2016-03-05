@@ -11,17 +11,14 @@ if async_mode is None:
         async_mode = 'eventlet'
     except ImportError:
         pass
-
     if async_mode is None:
         try:
             from gevent import monkey
             async_mode = 'gevent'
         except ImportError:
             pass
-
     if async_mode is None:
         async_mode = 'threading'
-
     print('async_mode is ' + async_mode)
 
 # monkey patching is necessary because this application uses a background
@@ -44,7 +41,6 @@ app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app, async_mode=async_mode)
 thread = None
 
-
 def background_thread():
     """Example of how to send server generated events to clients."""
     count = 0
@@ -54,8 +50,6 @@ def background_thread():
         socketio.emit('my response',
                       {'data': 'Server generated event', 'count': count},
                       namespace='/test')
-
-
 @app.route('/')
 def index():
     global thread
@@ -73,6 +67,10 @@ def rules():
         thread.daemon = True
         thread.start()
     return render_template('rules.html')
+
+@app.route('/room/<name>')
+def rooms(name):
+    return render_template('room.html', name=name)
 
 
 @socketio.on('my event', namespace='/test')
@@ -97,7 +95,7 @@ def join(message):
     emit('my response',
          {'data': 'In rooms: ' + ', '.join(rooms()),
           'count': session['receive_count']})
-
+    return room()
 
 @socketio.on('leave', namespace='/test')
 def leave(message):
