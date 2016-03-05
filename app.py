@@ -11,12 +11,14 @@ if async_mode is None:
         async_mode = 'eventlet'
     except ImportError:
         pass
+    
     if async_mode is None:
         try:
             from gevent import monkey
             async_mode = 'gevent'
         except ImportError:
             pass
+    
     if async_mode is None:
         async_mode = 'threading'
     print('async_mode is ' + async_mode)
@@ -68,9 +70,10 @@ def rules():
         thread.start()
     return render_template('rules.html')
 
-@app.route('/room/<name>')
-def rooms(name):
-    return render_template('room.html', name=name)
+#this cannot be called def rooms(name)
+@app.route('/room/<name>/<id>')
+def roomhtml(name, idval):
+    return render_template('room.html', name=name, socketid=idval)
 
 
 @socketio.on('my event', namespace='/test')
@@ -95,7 +98,6 @@ def join(message):
     emit('my response',
          {'data': 'In rooms: ' + ', '.join(rooms()),
           'count': session['receive_count']})
-    return room()
 
 @socketio.on('leave', namespace='/test')
 def leave(message):
