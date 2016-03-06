@@ -99,7 +99,10 @@ def background_thread():
                             'owner': player.getName()
                         }
                         cards.append(obj)
-                        player.removeCard(player.getSelectedCard())
+                        try:
+                            player.removeCard(player.getSelectedCard())
+                        except ValueError:
+                            pass
                         player.setSelectedCard(None)
                     games.resetPending()
                     games.setDisplayedBoard(cards)
@@ -193,7 +196,7 @@ def test_broadcast_message(message):
 @socketio.on('start_game', namespace='/test')
 def start_game(message):
     session['receive_count'] = session.get('receive_count', 0) + 1
-    if not roomsDict[message['room']]['start']:# and len(roomsDict[message['room']]['users']) >= 3:
+    if not roomsDict[message['room']]['start'] and len(roomsDict[message['room']]['users']) >= 3:
         roomsDict[message['room']]['start'] = True
         emit('my response',
              {'user': 'Deceit', 'data': session['username'] + ' started the game!', 'count': session['receive_count']},
