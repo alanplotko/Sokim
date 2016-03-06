@@ -78,8 +78,18 @@
                 });
 
                 $('button#disconnect').click(function(event) {
-                    socket.emit('leave', {room: $('#join_room').val()});
-                    socket.emit('disconnect request');
+                    socket.emit('clear log');
+                    socket.emit('leave', {room: $('#join_room').val()}, function(result) {
+                        if (result)
+                        {
+                            $.when($('form#chat').hide()).then(function() {
+                                $('#roomName').html('');
+                                $('form#join').show();
+                                $('button#disconnect').hide();
+                                $('button#start_game').hide();
+                            });
+                        }
+                    });
                     return false;
                 });
             });
@@ -120,7 +130,7 @@
                     </div>
                 </div>
             </form>
-            <button id="disconnect" class="ui red button">Disconnect</button>
+            <button id="disconnect" class="ui red button">Leave Room</button>
             <button id="start_game" class="ui blue button">Start Game</button>
             <h2 class="ui horizontal divider header">
                 <i class="comments outline icon"></i>

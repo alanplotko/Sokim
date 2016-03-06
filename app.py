@@ -194,6 +194,7 @@ def leave(message):
     emit('my response',
          {'user': message['room'].capitalize() + 'Bot', 'data': session['username'] + ' has left the room',
           'count': session['receive_count']}, room=message['room'])
+    return True
 
 @socketio.on('close room', namespace='/test')
 def close(message):
@@ -240,6 +241,11 @@ def send_room_message(message):
         emit('my response',
          {'user': session.get('username', ''), 'data': message['data'], 'count': session['receive_count']},
          room=message['room'])  
+
+@socketio.on('clear log', namespace='/test')
+def clear_log():
+    session['receive_count'] = session.get('receive_count', 0) + 1
+    emit('clear log', { 'count': session['receive_count'] })
 
 @socketio.on('disconnect request', namespace='/test')
 def disconnect_request():
