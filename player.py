@@ -23,7 +23,10 @@ class Player:
                 print "Hand is too full"
 
     def displayHand(self):
-        return ', '.join(self.hand)
+        s = ""
+        for url in self.hand:
+            s += '<img class="deceit_card" src="/static/assets/cards/' + url + '" />'
+        return s
 
     def removeCard(self, index):
         removedCard = self.hand[index]

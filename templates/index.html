@@ -29,6 +29,22 @@
                         + timestamp + '">' + moment().startOf().fromNow() + '</span></div>' + '<div class="text">' 
                         + msg.data + '</div></div></div>').prependTo("#log");
                 });
+                socket.on('my hand', function(msg) {
+                    var timestamp = new Date();
+                    if (msg.user == 'Deceit')
+                    {
+                        msg.user = '<span class="admin">Deceit</span>';
+                    }
+
+                    $('<div class="comment"><div class="content"><a class="author">' 
+                        + msg.user + '</a><div class="metadata"><span class="date" data-timestamp="' 
+                        + timestamp + '">' + moment().startOf().fromNow() + '</span></div>' + 
+                        '<div class="text"><span class="admin_msg">Loaded a new hand to your right.</span></div></div></div>').prependTo("#log");
+                    $('div#hand').html('');
+                    $('div#hand').html(msg.data)
+                    $("#hand_loader").removeClass('active');
+                    $("#hand_loader div").addClass('disabled');
+                });
                 // event handler for new connections
                 socket.on('connect', function() {
                     socket.emit('my event', {user: 'Deceit', data: 'You\'re connected!'});
@@ -71,6 +87,8 @@
                     socket.emit('start_game', {room: $('#join_room').val()}, function(result) {
                         if (result)
                         {
+                        $("#hand_loader").addClass('active');
+                        $("#hand_loader div").removeClass('disabled');
                             $('button#start_game').hide();
                         }
                     });
@@ -79,7 +97,7 @@
 
                 $('button#disconnect').click(function(event) {
                     socket.emit('clear log');
-                    socket.emit('leave', {room: $('#join_room').val()}, function(result) {
+                    socket.emit('leave', {username: $('#username').val(), room: $('#join_room').val()}, function(result) {
                         if (result)
                         {
                             $.when($('form#chat').hide()).then(function() {
@@ -87,6 +105,7 @@
                                 $('form#join').show();
                                 $('button#disconnect').hide();
                                 $('button#start_game').hide();
+                                $('#hand').html('<div id="hand_loader" class="ui dimmer"><div class="ui large text disabled loader">Loading</div></div><i class="massive game icon"></i><br /><h2>Game Not Started</h2>')
                             });
                         }
                     });
@@ -132,12 +151,29 @@
             </form>
             <button id="disconnect" class="ui red button">Leave Room</button>
             <button id="start_game" class="ui blue button">Start Game</button>
-            <h2 class="ui horizontal divider header">
-                <i class="comments outline icon"></i>
-                Messages
-            </h2>
-            <div id="message_box">
-                <div id="log" class="ui comments"></div>
+            <div id="log_grid" class="ui grid">
+                <div class="six wide column">
+                    <h2 class="ui horizontal divider header">
+                        <i class="comments outline icon"></i>
+                        Messages
+                    </h2>
+                    <div id="message_box">
+                        <div id="log" class="ui comments"></div>
+                    </div>
+                </div>
+                <div id="hand_section" class="ten wide centered column">
+                    <h2 class="ui horizontal divider header">
+                        <i class="columns icon"></i>
+                        Your Hand
+                    </h2>
+                    <div id="hand">
+                        <div id="hand_loader" class="ui dimmer">
+                            <div class="ui large text disabled loader">Loading</div>
+                        </div>
+                        <i class="massive game icon"></i><br />
+                        <h2>Game Not Started</h2>
+                    </div>
+                </div>
             </div>
         </div>
         <script type="text/javascript" src="{{ url_for('static', filename='assets/js/time.js') }}"></script>

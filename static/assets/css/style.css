@@ -78,18 +78,6 @@ button#start_game {
     display: none;
 }
 
-/*.comment .timestamp {
-    font-style: italic;
-}
-
-.comment .username {
-    font-weight: bold;
-}
-
-.comment {
-    padding-bottom: 10px;
-}*/
-
 button#start_game,
 button#disconnect {
     margin: 20px 10px 0 0!important;
@@ -103,7 +91,29 @@ span.admin_msg {
     font-style: italic;
 }
 
-#message_box {
+#message_box,
+#hand {
     height: 300px;
     overflow-y: auto;
+}
+
+#hand_section {
+    text-align: center;
+}
+
+/*===============
+ * Cards
+=================*/
+
+#log_grid {
+    padding-top: 40px;
+}
+
+.deceit_card {
+    width: 150px;
+    margin-right: 10px;
+}
+
+.divider.header {
+    padding-bottom: 20px;
 }

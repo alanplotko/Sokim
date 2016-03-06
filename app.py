@@ -51,6 +51,7 @@ games = None
 inputdone = False
 output = []
 inptt = None
+state = 0
 
 def input_thread():
     print("INPUT")
@@ -63,17 +64,19 @@ def input_thread():
 
 def background_thread():
     """Example of how to send server generated events to clients."""
-    global games, socketio
+    global games, socketio, state
     count = 0
     while True:
         time.sleep(10)
         count += 1
         if games is not None:
-          players = games.getPlayers()
-          for player in players:
-            with app.test_request_context('/'):
-              socketio.emit('my response',
-                   {'user': 'Deceit', 'data': player.displayHand()}, room=games.getRoom(), namespace='/test')
+          if state == 0:
+            players = games.getPlayers()
+            for player in players:
+              with app.test_request_context('/'):
+                socketio.emit('my hand',
+                     {'user': 'Deceit', 'data': player.displayHand()}, room=player.getName(), namespace='/test')
+            state += 1
 
       # print("BACKGROUND")
       # #print("Game none:"),
@@ -166,20 +169,28 @@ def update_game(message):
 @socketio.on('join', namespace='/test')
 def join(message):
     global roomsDict
-    session['username'] = message['username']
+    if message['username'] in roomsDict:
+        emit('my response',
+             {'user': 'Deceit', 'data': 'User "' + message['username'] + '" exists',
+             'count': session['receive_count']})
+        return False
+    else:
+        session['username'] = message['username']
+        # Give some value to the user
+        roomsDict[message['username']] = message['username']
     if message['room'] not in roomsDict:
         roomsDict[message['room']] = {
             'users': [],
             'start': False
         }
-    else:
-        if len(roomsDict[message['room']]['users']) > 3:
-            emit('my response',
-             {'user': 'Deceit', 'data': 'Could not join ' + message['room'] + '(room is full)',
-             'count': session['receive_count']})
-            return False
+    elif len(roomsDict[message['room']]['users']) > 3:
+        emit('my response',
+         {'user': 'Deceit', 'data': 'Could not join ' + message['room'] + '(room is full)',
+         'count': session['receive_count']})
+        return False
     roomsDict[message['room']]['users'].append(session['username'])
     join_room(message['room'])
+    join_room(message['username'])
     session['receive_count'] = session.get('receive_count', 0) + 1
     emit('my response',
          {'user': 'Deceit', 'data': 'Joined ' + message['room'],
@@ -193,7 +204,9 @@ def join(message):
 def leave(message):
     global roomsDict
     leave_room(message['room'])
+    leave_room(message['username'])
     roomsDict[message['room']]['users'].remove(session['username'])
+    del roomsDict[message['username']]
     session['receive_count'] = session.get('receive_count', 0) + 1
     emit('my response',
          {'user': 'Deceit', 'data': 'Left ' + message['room'],
