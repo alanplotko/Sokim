@@ -32,13 +32,14 @@
                 socket.on('stop loading', function() {
                     $("#hand_loader").removeClass('active');
                     $("#hand_loader div").addClass('disabled');
+                    $('#hand_section h2').html('<i class="columns icon"></i> Your Hand');
                 });
                 socket.on('my hand', function(msg) {
                     var timestamp = new Date();
                     if (msg.user == 'Deceit')
                     {
-                        msg.user = '<span class"admin">Deceit</span>';
-                    }=
+                        msg.user = '<span class="admin">Deceit</span>';
+                    }
 
                     $('<div class="comment"><div class="content"><a class="author">' 
                         + msg.user + '</a><div class="metadata"><span class="date" data-timestamp="' 

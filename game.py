@@ -44,6 +44,12 @@ class Game:
         self.prntout = ""
         self.waiting = False
 
+    def getHighestScore(self)
+        return {
+            'highestScore': self.highestScore,
+            'name': self.highestScorer
+        }
+
     def getPlayers(self):
         return self.players
 
@@ -140,8 +146,8 @@ class Game:
             if debug:
                 print "ROUND ROBIN"
             # Each player including storyteller gets 3 pts for each vote
-            for i in range(numPlayers):
-                if self.votes[i]['vote']  == storytellerCard:
+            for i in range(self.numPlayers):
+                if self.votes[i]['vote']  == selftorytellerCard:
                     self.awardPlayer(self.votes[i]['owner'], 3)
 
                 else:
@@ -152,7 +158,7 @@ class Game:
 
                 if topScore < self.players[i].getScore():
                     topScore = self.players[i].getScore()
-                    topScorer = i
+                    topScorer = self.players[i].getName()
 
         else:
             if debug:

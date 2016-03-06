@@ -73,6 +73,12 @@ def background_thread():
         with app.test_request_context('/'):
             if games is not None:
                 players = games.getPlayers()
+                victory = games.getHighestScore()
+                if victory['highestScore'] >= 30:
+                    for player in players:
+                        socketio.emit('my response',
+                            {'user': 'Deceit', 'data': 'WINNER: ' + victory['name']}, room=player.getName(), namespace='/test')
+                    return
                 if state == 0:
                     for player in players:
                         socketio.emit('my hand',
@@ -80,7 +86,8 @@ def background_thread():
                     socketio.emit('my response',
                         {'user': 'Deceit', 'data': 'You have been selected as the host.'}, room=games.getHost(), namespace='/test')
                     if newRound:
-                        socketio.emit('stop loading')
+                        for player in players:
+                            socketio.emit('stop loading', room=player.getName(), namespace='/test')
                         newRound = False
                     state += 1
                 elif state == 3:
