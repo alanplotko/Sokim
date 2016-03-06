@@ -102,3 +102,8 @@ span.admin {
 span.admin_msg {
     font-style: italic;
 }
+
+#message_box {
+    height: 300px;
+    overflow-y: auto;
+}

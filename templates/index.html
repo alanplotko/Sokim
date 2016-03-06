@@ -28,6 +28,8 @@
                         + msg.user + '</a><div class="metadata"><span class="date" data-timestamp="' 
                         + timestamp + '">' + moment().startOf().fromNow() + '</span></div>' + '<div class="text">' 
                         + msg.data + '</div></div></div>').appendTo("#log");
+
+                    $('div#message_box').animate({ scrollTop: $('div#log').get(0).scrollHeight }, 2000);
                 });
                 // event handler for new connections
                 socket.on('connect', function() {
@@ -125,7 +127,9 @@
                 <i class="comments outline icon"></i>
                 Messages
             </h2>
-            <div id="log" class="ui comments"></div>
+            <div id="message_box">
+                <div id="log" class="ui comments"></div>
+            </div>
         </div>
         <script type="text/javascript" src="{{ url_for('static', filename='assets/js/time.js') }}"></script>
     </body>
