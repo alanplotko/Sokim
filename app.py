@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 
-# Set this variable to "threading", "eventlet" or "gevent" to test the
-# different async modes, or leave it set to None for the application to choose
-# the best option based on available packages.
 async_mode = None
-
 if async_mode is None:
     try:
         import eventlet
@@ -33,7 +29,6 @@ elif async_mode == 'gevent':
     monkey.patch_all()
 
 import time
-from multiprocessing.pool import ThreadPool
 from threading import Thread
 from flask import Flask, render_template, session, request
 from flask_socketio import SocketIO, emit, join_room, leave_room, \
@@ -43,77 +38,27 @@ import game
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app, async_mode=async_mode)
-thread = None
-thread2 = None
+threadpool = []
 roomsDict = {}
+games = []
+inputlock = 0
 
-games = None
-inputdone = False
-output = []
-inptt = None
-
-def input_thread():
-    print("INPUT")
-    if(games is not None):
-        global output 
-        inputdone = False
-        output = games.update()
-        inputdone = True
-    print("END INPUT")
-
-def background_thread():
-    """Example of how to send server generated events to clients."""
-    count = 0
+def background_thread(args):
+    print("background thread")
     while True:
         time.sleep(1)
-        count += 1
-        print("BACKGROUND")
-        #print("Game none:"),
-        #print(games)
-        if(games is not None):
-            print("GAME NOT NONE")
-            socketio.emit('clear log',
-                {'data': 'data', 'count':count},
-                room=games.room, namespace='/test')
-            output = games.update()
-            socketio.emit('my response',
-             {'data': '<span class="username">' + games.room.capitalize() + ' '.join(output), 'count':count},
-             room=games.room, namespace='/test')
-
-            if(games.waiting):
-                print("GAME WAITING")
-                socketio.emit('my response',
-                {'data': '<span class="username">' + games.prntout, 'count':count},
-                room=games.room, namespace='/test')
-                if(inptt is not None):
-                    print("NOT NULL")
-                    games.inputVars = inptt
-                    games.waiting = False
-        print("END BACK")
+        if(games[args] is not None):
+            print(games[args])
             
-
 @app.route('/')
 def index():
-    global thread
-    global thread2
-    if thread is None:
-        thread = Thread(target=background_thread)
+    global threadpool
+    if threadpool is None:
+        thread = Thread(target=background_thread, args=(len(threadpool)-1))
         thread.daemon = True
         thread.start()
-    if thread2 is None:
-        thread2 = Thread(target=input_thread)
-        thread2.daemon = True
-        thread2.start()
+        threadpool.append(thread)
     return render_template('index.html')
-
-@app.route('/rules/')
-def rules():
-    global thread
-    if thread is None:
-        thread = Thread(target=background_thread)
-        thread.daemon = True
-        thread.start()
-    return render_template('rules.html')
 
 @socketio.on('my event', namespace='/test')
 def test_message(message):
@@ -140,7 +85,7 @@ def start_game(message):
              {'data': '<span class="username">' + message['room'].capitalize() + 'Bot</span>: Starting the game!', 'count': session['receive_count']},
              room=message['room'])
         global games
-        games = game.Game(roomsDict[message['room']]['users'], message['room'])
+        games.append(game.Game(roomsDict[message['room']]['users'], message['room']))
         return True
     elif roomsDict[message['room']]['start']:
         emit('my response',
@@ -150,11 +95,6 @@ def start_game(message):
         emit('my response',
              {'data': '<span class="username">Deceit</span>: Not enough players to start the game.', 'count': session['receive_count']})        
         return False
-
-@socketio.on('game_update', namespace='/test')
-def update_game(message):
-    print("sadlkjsaldkjslkdjlskajdl")
-
 
 @socketio.on('join', namespace='/test')
 def join(message):
@@ -210,24 +150,11 @@ def parseCommand(message, command):
     print("PARSING COMMAND")
     if(command.split()[0] == '/a'):
         choosecardevent(int(command.split()[1]))
-        #emit('choose card event', {room: message['room'], data: 'hand', choice:int(command.split()[1])});  
-    if(command.split()[0] == '/b'):
-        print("DSL:KD")#emit('choose card event', {room: message['room'], data: 'board', choice:int(command.split()[1])});    
 
 #@socketio.on('choose card event', namespace='/test')
 def choosecardevent(message):
     print("cardevet" + str(message))
     inptt = message
-    '''
-    if(message['data'] == 'hand'):
-        games.inputVars = message#['choice']
-        games.waiting = False
-    elif(message['data'] == 'board'):
-        games.inputVars = message#['choice']
-        games.waiting = False
-    else:
-        print("unhandled")
-    '''
     return
 
 @socketio.on('my room event', namespace='/test')

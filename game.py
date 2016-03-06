@@ -1,6 +1,5 @@
 import random
 import time
-
 from player import Player
 
 # Constants
@@ -15,7 +14,6 @@ class Game:
     def __init__(self, users, room):
         if debug:
             print "Inside __init__"
-       # Initialize players
         self.numPlayers = len(users)
         self.room = room
         self.players = [Player(name, deck) for name in range(self.numPlayers)]
@@ -37,15 +35,31 @@ class Game:
         self.inputVars = -1
         self.prntout = ""
         self.waiting = False
+    
+    def nextPlayer(self):
+        if debug:
+            print("Inside nextPlayer")
+        self.storyteller = (self.storyteller + 1) % self.numPlayers
 
-    def waitforinput(self, printout, variable):
-        self.waiting = True
-        self.prntout = printout
-        while(self.waiting):
-            print("DSLKJDSLK")
-            pass
-        return self.inputVars
 
+    def setupNextRound(self):
+        if debug:
+            print "Inside setupNextRound"
+        self.cardOwners.clear()
+        # Reset all the votes
+        for vote in self.votes:
+            vote = 0
+
+        # Reset board/throw board cards away
+        for i in range(self.numPlayers):
+            self.hiddenboard[i] = 0
+            self.displayedboard[i] = 0
+
+        for player in self.players:
+            player.drawCard(deck)
+
+        self.nextPlayer()
+'''
     # Make sure board and votes are loaded first
     def evaluateBoard(self, storytellerCard):
         if debug:
@@ -105,28 +119,6 @@ class Game:
         self.highestScore = topScore
         self.highestScorer = topScorer
 
-    def nextPlayer(self):
-        if debug:
-            print("Inside nextPlayer")
-        self.storyteller = (self.storyteller + 1) % self.numPlayers
-
-    def setupNextRound(self):
-        if debug:
-            print "Inside setupNextRound"
-        self.cardOwners.clear()
-        # Reset all the votes
-        for vote in self.votes:
-            vote = 0
-
-        # Reset board/throw board cards away
-        for i in range(self.numPlayers):
-            self.hiddenboard[i] = 0
-            self.displayedboard[i] = 0
-
-        for player in self.players:
-            player.drawCard(deck)
-
-        self.nextPlayer()
 
     def gameloop(self):
         ret = []
@@ -209,3 +201,4 @@ if __name__ == "__main__":
     uzers = [0, 1, 2]
     deceit = Game(uzers)
     deceit.main()
+'''
