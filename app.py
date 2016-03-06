@@ -64,32 +64,32 @@ def input_thread():
 def background_thread():
     """Example of how to send server generated events to clients."""
     count = 0
-    while True:
-        time.sleep(1)
-        count += 1
-        print("BACKGROUND")
-        #print("Game none:"),
-        #print(games)
-        if(games is not None):
-            print("GAME NOT NONE")
-            socketio.emit('clear log',
-                {'data': 'data', 'count':count},
-                room=games.room, namespace='/test')
-            output = games.update()
-            socketio.emit('my response',
-             {'data': '<span class="username">' + games.room.capitalize() + ' '.join(output), 'count':count},
-             room=games.room, namespace='/test')
+    # while True:
+    #     time.sleep(1)
+    #     count += 1
+    #     print("BACKGROUND")
+    #     #print("Game none:"),
+    #     #print(games)
+    #     if(games is not None):
+    #         print("GAME NOT NONE")
+    #         socketio.emit('clear log',
+    #             {'data': 'data', 'count':count},
+    #             room=games.room, namespace='/test')
+    #         output = games.update()
+    #         socketio.emit('my response',
+    #          {'data': '<span class="username">' + games.room.capitalize() + ' '.join(output), 'count':count},
+    #          room=games.room, namespace='/test')
 
-            if(games.waiting):
-                print("GAME WAITING")
-                socketio.emit('my response',
-                {'data': '<span class="username">' + games.prntout, 'count':count},
-                room=games.room, namespace='/test')
-                if(inptt is not None):
-                    print("NOT NULL")
-                    games.inputVars = inptt
-                    games.waiting = False
-        print("END BACK")
+    #         if(games.waiting):
+    #             print("GAME WAITING")
+    #             socketio.emit('my response',
+    #             {'data': '<span class="username">' + games.prntout, 'count':count},
+    #             room=games.room, namespace='/test')
+    #             if(inptt is not None):
+    #                 print("NOT NULL")
+    #                 games.inputVars = inptt
+    #                 games.waiting = False
+    #     print("END BACK")
             
 
 @app.route('/')

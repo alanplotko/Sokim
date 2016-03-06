@@ -27,9 +27,7 @@
                     $('<div class="comment"><div class="content"><a class="author">' 
                         + msg.user + '</a><div class="metadata"><span class="date" data-timestamp="' 
                         + timestamp + '">' + moment().startOf().fromNow() + '</span></div>' + '<div class="text">' 
-                        + msg.data + '</div></div></div>').appendTo("#log");
-
-                    $('div#message_box').animate({ scrollTop: $('div#log').get(0).scrollHeight }, 2000);
+                        + msg.data + '</div></div></div>').prependTo("#log");
                 });
                 // event handler for new connections
                 socket.on('connect', function() {
@@ -65,6 +63,7 @@
 
                 $('form#chat').submit(function(event) {
                     socket.emit('my room event', {room: $('#join_room').val(), data: $('#room_data').val()});
+                    $('#room_data').val('');
                     return false;
                 });
 
