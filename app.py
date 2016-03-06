@@ -35,7 +35,7 @@ elif async_mode == 'gevent':
 import time
 from multiprocessing.pool import ThreadPool
 from threading import Thread
-from flask import Flask, render_template, session, request
+from flask import Flask, render_template, session, request, copy_current_request_context
 from flask_socketio import SocketIO, emit, join_room, leave_room, \
     close_room, rooms, disconnect
 import game
@@ -63,34 +63,41 @@ def input_thread():
 
 def background_thread():
     """Example of how to send server generated events to clients."""
+    global games, socketio
     count = 0
-    # while True:
-    #     time.sleep(1)
-    #     count += 1
-    #     print("BACKGROUND")
-    #     #print("Game none:"),
-    #     #print(games)
-    #     if(games is not None):
-    #         print("GAME NOT NONE")
-    #         socketio.emit('clear log',
-    #             {'data': 'data', 'count':count},
-    #             room=games.room, namespace='/test')
-    #         output = games.update()
-    #         socketio.emit('my response',
-    #          {'data': '<span class="username">' + games.room.capitalize() + ' '.join(output), 'count':count},
-    #          room=games.room, namespace='/test')
+    while True:
+        time.sleep(10)
+        count += 1
+        if games is not None:
+          players = games.getPlayers()
+          for player in players:
+            with app.test_request_context('/'):
+              socketio.emit('my response',
+                   {'user': 'Deceit', 'data': player.displayHand()}, room=games.getRoom(), namespace='/test')
 
-    #         if(games.waiting):
-    #             print("GAME WAITING")
-    #             socketio.emit('my response',
-    #             {'data': '<span class="username">' + games.prntout, 'count':count},
-    #             room=games.room, namespace='/test')
-    #             if(inptt is not None):
-    #                 print("NOT NULL")
-    #                 games.inputVars = inptt
-    #                 games.waiting = False
-    #     print("END BACK")
-            
+      # print("BACKGROUND")
+      # #print("Game none:"),
+      # #print(games)
+      # if(games is not None):
+      #     print("GAME NOT NONE")
+      #     socketio.emit('clear log',
+      #         {'data': 'data', 'count':count},
+      #         room=games.room, namespace='/test')
+      #     output = games.update()
+      #     socketio.emit('my response',
+      #      {'data': '<span class="username">' + games.room.capitalize() + ' '.join(output), 'count':count},
+      #      room=games.room, namespace='/test')
+
+      #     if(games.waiting):
+      #         print("GAME WAITING")
+      #         socketio.emit('my response',
+      #         {'data': '<span class="username">' + games.prntout, 'count':count},
+      #         room=games.room, namespace='/test')
+      #         if(inptt is not None):
+      #             print("NOT NULL")
+      #             games.inputVars = inptt
+      #             games.waiting = False
+      # print("END BACK")
 
 @app.route('/')
 def index():

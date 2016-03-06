@@ -5,7 +5,7 @@ import random
 
 class Deck:
 
-    def __init__(self,folderPath):
+    def __init__(self, folderPath):
         self.folderPath = folderPath
         self.imageFilenames = [f for f in listdir(folderPath) if isfile(join(folderPath,f))]
         random.shuffle(self.imageFilenames)
@@ -16,6 +16,9 @@ class Deck:
 
     def shuffle(self):
         random.shuffle(self.imageFilenames)
+
+    def getDeck(self):
+        return self.imageFilenames
 
 if __name__ == "__main__":
     testDeck = Deck("static/assets/img")

@@ -2,13 +2,12 @@ import random
 import time
 
 from player import Player
+from deck import Deck
 
 # Constants
 ALL_OR_NOT = 0
 ROUND_ROBIN = 1
 debug = False
-deck = [i for i in range(0, 100)]
-random.shuffle(deck)
 
 class Game:
 
@@ -18,7 +17,9 @@ class Game:
        # Initialize players
         self.numPlayers = len(users)
         self.room = room
-        self.players = [Player(name, deck) for name in range(self.numPlayers)]
+        self.deck = Deck('static/assets/cards/').getDeck()
+        self.players = [Player(users[name], self.deck) for name in range(self.numPlayers)]
+        print(self.players)
         if debug:
             for i in range(users):
                 print "Created new player"
@@ -37,6 +38,12 @@ class Game:
         self.inputVars = -1
         self.prntout = ""
         self.waiting = False
+
+    def getPlayers(self):
+        return self.players
+
+    def getRoom(self):
+        return self.room
 
     def waitforinput(self, printout, variable):
         self.waiting = True
