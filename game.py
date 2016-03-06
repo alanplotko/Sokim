@@ -44,7 +44,7 @@ class Game:
         self.prntout = ""
         self.waiting = False
 
-    def getHighestScore(self)
+    def getHighestScore(self):
         return {
             'highestScore': self.highestScore,
             'name': self.highestScorer
