@@ -75,6 +75,16 @@ class Game:
         for i in range(self.numPlayers):
             self.hiddenboard[i] = cards[i]
 
+    def setVotes(self, votes):
+        for i in range(len(votes)):
+            self.votes[i] = votes[i]
+
+    def awardPlayer(self, player, points):
+        for p in self.players:
+            if p.getName() == player:
+                p.addPoints(points)
+                break
+
     def decrementPending(self):
         self.pending -= 1
 
@@ -91,13 +101,11 @@ class Game:
 
     # Make sure board and votes are loaded first
     def evaluateBoard(self, storytellerCard):
-        if debug:
-            print "Inside evaluateBoard"
         #Check if all or none found it
         cardCount = 0 #Evaluate 'all or nothing' rule through card count
-        for i in range(len(self.votes)):
-            if i != self.storyteller:
-                if self.displayedboard[self.votes[i]] == storytellerCard:
+        for i in range(len(self.votes)): ##numPlayers
+            if votes[i]['name'] != self.host:
+                if self.votes[i]['vote'] == storytellerCard:
                     cardCount += 1
                     if debug:
                         print "DDENG"
@@ -120,14 +128,15 @@ class Game:
             if debug:
                 print "ROUND ROBIN"
             # Each player including storyteller gets 3 pts for each vote
-            for i in range(len(self.players)):
-                if i == self.storyteller:
-                    self.players[i].addPoints(3)
+            for i in range(numPlayers):
+                if self.votes[i]['vote']  == storytellerCard:
+                    self.awardPlayer(self.votes[i]['owner'], 3)
+
                 else:
-                    if self.displayedboard[self.votes[i]] == storytellerCard:
-                        self.players[i].addPoints(3)
+                    if self.votes[i]['vote'] == storytellerCard:
+                        self.awardPlayer(self.votes[i]['owner'], 3)
                     else:
-                        print "Finish this part"
+                        self.awardPlayer(self.votes[i]['owner'], 1)
 
                 if topScore < self.players[i].getScore():
                     topScore = self.players[i].getScore()
@@ -138,7 +147,7 @@ class Game:
                 print "ALL OR NOT"
             for i in range(self.numPlayers):
                 if i != self.storyteller:
-                    self.players[i].addPoints(2)
+                    self.awardPlayer(players[i].getName(), 2)
 
                 if topScore < self.players[i].getScore():
                     topScore = self.players[i].getScore()
