@@ -30,13 +30,22 @@
                 }, function() {
                     $('#roomName').html($('#join_room').val() + ' Channel: Chat');
                     $('#user').html($('#username').val());
-                    $.when($('form#join').hide()).then(function() { $('form#chat').show(); $('form#disconnect').show(); });
+                    $.when($('form#join').hide()).then(function() {
+                        $('form#chat').show();
+                        $('form#disconnect').show();
+                        $('button#start_game').show();
+                    });
                 });
                 return false;
             });
 
             $('form#chat').submit(function(event) {
                 socket.emit('my room event', {room: $('#join_room').val(), data: $('#room_data').val()});
+                return false;
+            });
+
+            $('button#start_game').click(function(event) {
+                socket.emit('start_game', {room: $('#join_room').val()});
                 return false;
             });
 
@@ -67,6 +76,8 @@
     <form id="disconnect" method="POST" action='#'>
         <input type="submit" value="Disconnect">
     </form>
+    <br />
+    <button id="start_game" type="submit">Start Game</button>
     <h2>Messages:</h2>
     <div id="log"></div>
     <script type="text/javascript" src="{{ url_for('static', filename='assets/js/time.js') }}"></script>

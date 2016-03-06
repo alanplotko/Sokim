@@ -42,6 +42,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app, async_mode=async_mode)
 thread = None
+roomsDict = {}
 
 def background_thread():
     """Example of how to send server generated events to clients."""
@@ -83,9 +84,29 @@ def test_broadcast_message(message):
          {'data': message['data'], 'count': session['receive_count']},
          broadcast=True)
 
+@socketio.on('start_game', namespace='/test')
+def start_game(message):
+    session['receive_count'] = session.get('receive_count', 0) + 1
+    if len(roomsDict[message['room']]['users']) >= 3:
+        emit('my response',
+             {'data': '<span class="username">Deceit</span>: ' + session['username'] + ' started the game!', 'count': session['receive_count']},
+             room=message['room'])
+        emit('my response',
+             {'data': '<span class="username">' + message['room'].capitalize() + 'Bot</span>: Starting the game!', 'count': session['receive_count']},
+             room=message['room'])
+    else:
+        emit('my response',
+             {'data': '<span class="username">Deceit</span>: Not enough players to start the game.', 'count': session['receive_count']})        
+
 @socketio.on('join', namespace='/test')
 def join(message):
+    global roomsDict
     session['username'] = message['username']
+    if message['room'] not in roomsDict:
+        roomsDict[message['room']] = {
+            'users': []
+        }
+    roomsDict[message['room']]['users'].append(session['username'])
     join_room(message['room'])
     session['receive_count'] = session.get('receive_count', 0) + 1
     emit('my response',
@@ -97,7 +118,9 @@ def join(message):
 
 @socketio.on('leave', namespace='/test')
 def leave(message):
+    global roomsDict
     leave_room(message['room'])
+    roomsDict[message['room']]['users'].remove(session['username'])
     session['receive_count'] = session.get('receive_count', 0) + 1
     emit('my response',
          {'data': '<span class="username">Deceit</span>: Left ' + message['room'],
@@ -108,7 +131,10 @@ def leave(message):
 
 @socketio.on('close room', namespace='/test')
 def close(message):
+    global roomsDict
     session['receive_count'] = session.get('receive_count', 0) + 1
+    if message['room'] in roomsDict:
+        del roomsDict[message['room']]
     emit('my response', {'data': 'Room ' + message['room'] + ' is closing.',
                          'count': session['receive_count']},
          room=message['room'])

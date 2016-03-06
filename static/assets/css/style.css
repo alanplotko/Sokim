@@ -1,5 +1,6 @@
 form#chat,
-form#disconnect {
+form#disconnect,
+button#start_game {
     display: none;
 }
 
