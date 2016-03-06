@@ -1,10 +1,10 @@
 debug = True
 class Player:
 
-    def __init__(self, deck):
+    def __init__(self, name, deck):
         self.hand = []
         self.score = 0
-        self.name = ""
+        self.name = name
         for i in range(6):
             if not deck:
                 print "Deck is empty" #Placeholder respone

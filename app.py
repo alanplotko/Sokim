@@ -37,6 +37,7 @@ from threading import Thread
 from flask import Flask, render_template, session, request
 from flask_socketio import SocketIO, emit, join_room, leave_room, \
     close_room, rooms, disconnect
+import game
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
@@ -87,16 +88,24 @@ def test_broadcast_message(message):
 @socketio.on('start_game', namespace='/test')
 def start_game(message):
     session['receive_count'] = session.get('receive_count', 0) + 1
-    if len(roomsDict[message['room']]['users']) >= 3:
+    if not roomsDict[message['room']]['start'] and len(roomsDict[message['room']]['users']) >= 3:
+        roomsDict[message['room']]['start'] = True
         emit('my response',
              {'data': '<span class="username">Deceit</span>: ' + session['username'] + ' started the game!', 'count': session['receive_count']},
              room=message['room'])
         emit('my response',
              {'data': '<span class="username">' + message['room'].capitalize() + 'Bot</span>: Starting the game!', 'count': session['receive_count']},
              room=message['room'])
+        #game = game.Game(roomsDict[message['room']]['users'])
+        return True
+    elif roomsDict[message['room']]['start']:
+        emit('my response',
+             {'data': '<span class="username">Deceit</span>: Game currently in progress!', 'count': session['receive_count']})        
+        return False
     else:
         emit('my response',
              {'data': '<span class="username">Deceit</span>: Not enough players to start the game.', 'count': session['receive_count']})        
+        return False
 
 @socketio.on('join', namespace='/test')
 def join(message):
@@ -104,8 +113,15 @@ def join(message):
     session['username'] = message['username']
     if message['room'] not in roomsDict:
         roomsDict[message['room']] = {
-            'users': []
+            'users': [],
+            'start': False
         }
+    else:
+        if len(roomsDict[message['room']]['users']) > 3:
+            emit('my response',
+             {'data': '<span class="username">Deceit</span>: Could not join ' + message['room'] + '(room is full)',
+             'count': session['receive_count']})
+            return False
     roomsDict[message['room']]['users'].append(session['username'])
     join_room(message['room'])
     session['receive_count'] = session.get('receive_count', 0) + 1
@@ -115,6 +131,7 @@ def join(message):
     emit('my response',
          {'data': '<span class="username">' + message['room'].capitalize() + 'Bot</span>: ' + session['username'] + ' has entered the room',
           'count': session['receive_count']}, room=message['room'])
+    return True
 
 @socketio.on('leave', namespace='/test')
 def leave(message):

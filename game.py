@@ -12,19 +12,18 @@ random.shuffle(deck)
 
 class Game:
 
-    def __init__(self):
+    def __init__(self, users):
 
         if debug:
             print "Inside __init__"
        # Initialize players
-        self.numPlayers = input("Enter number of players: ")
-        self.players = [Player(deck) for i in range(self.numPlayers)]
+        self.numPlayers = len(users)
+        self.players = [Player(name, deck) for name in range(self.numPlayers)]
         if debug:
-            for i in range(self.numPlayers):
+            for i in range(users):
                 print "Created new player"
                 self.players[i].displayHand()
         random.shuffle(self.players)
-
 
         # Initialize votes
         self.votes = [0 for i in range(self.numPlayers)]
@@ -38,7 +37,7 @@ class Game:
         self.storyteller = 0
 
     # Make sure board and votes are loaded first
-    def evaluateBoard(self,storytellerCard):
+    def evaluateBoard(self, storytellerCard):
         if debug:
             print "Inside evaluateBoard"
         #Check if all or none found it

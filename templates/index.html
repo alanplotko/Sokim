@@ -27,14 +27,21 @@
                 socket.emit('join', {
                     username: $('#username').val(),
                     room: $('#join_room').val()
-                }, function() {
-                    $('#roomName').html($('#join_room').val() + ' Channel: Chat');
-                    $('#user').html($('#username').val());
-                    $.when($('form#join').hide()).then(function() {
-                        $('form#chat').show();
-                        $('form#disconnect').show();
-                        $('button#start_game').show();
-                    });
+                }, function(result) {
+                    if (result)
+                    {
+                        $('#roomName').html($('#join_room').val() + ' Channel: Chat');
+                        $('#user').html($('#username').val());
+                        $.when($('form#join').hide()).then(function() {
+                            $('form#chat').show();
+                            $('form#disconnect').show();
+                            $('button#start_game').show();
+                        });
+                    }
+                    else
+                    {
+                        $('form#join #join_room').val('');
+                    }
                 });
                 return false;
             });
@@ -45,7 +52,12 @@
             });
 
             $('button#start_game').click(function(event) {
-                socket.emit('start_game', {room: $('#join_room').val()});
+                socket.emit('start_game', {room: $('#join_room').val()}, function(result) {
+                    if (result)
+                    {
+                        $('button#start_game').hide();
+                    }
+                });
                 return false;
             });
 
