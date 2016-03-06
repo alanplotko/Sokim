@@ -1,5 +1,6 @@
 <!DOCTYPE HTML>
 <html>
+<<<<<<< HEAD
     <head>
         {%include 'head.html' %}
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='assets/css/semantic.min.css') }}">
@@ -26,6 +27,10 @@
                 // event handler for new connections
                 socket.on('connect', function() {
                     socket.emit('my event', {user: 'Deceit', data: 'You\'re connected!'});
+                });
+
+                socket.on('clear log', function(msg){
+                    $('#log').html('');
                 });
 
                 $('form#join').submit(function(event) {
