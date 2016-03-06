@@ -94,3 +94,11 @@ button#start_game,
 button#disconnect {
     margin: 20px 10px 0 0!important;
 }
+
+span.admin {
+    color: red;
+}
+
+span.admin_msg {
+    font-style: italic;
+}

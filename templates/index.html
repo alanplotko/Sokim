@@ -1,6 +1,5 @@
 <!DOCTYPE HTML>
 <html>
-<<<<<<< HEAD
     <head>
         {%include 'head.html' %}
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='assets/css/semantic.min.css') }}">
@@ -19,6 +18,12 @@
                 // the data is displayed in the "Received" section of the page
                 socket.on('my response', function(msg) {
                     var timestamp = new Date();
+                    if (msg.user == 'Deceit')
+                    {
+                        msg.user = '<span class="admin">Deceit</span>';
+                        msg.data = '<span class="admin_msg">' + msg.data + '</span>';
+                    }
+
                     $('<div class="comment"><div class="content"><a class="author">' 
                         + msg.user + '</a><div class="metadata"><span class="date" data-timestamp="' 
                         + timestamp + '">' + moment().startOf().fromNow() + '</span></div>' + '<div class="text">' 
