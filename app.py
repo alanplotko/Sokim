@@ -39,6 +39,7 @@ from flask import Flask, render_template, session, request, copy_current_request
 from flask_socketio import SocketIO, emit, join_room, leave_room, \
     close_room, rooms, disconnect
 import game
+import os
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
