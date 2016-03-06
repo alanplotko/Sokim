@@ -4,7 +4,7 @@ class Player:
     def __init__(self, deck):
         self.hand = []
         self.score = 0
-        # name = ""
+        self.name = ""
         for i in range(6):
             if not deck:
                 print "Deck is empty" #Placeholder respone
