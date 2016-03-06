@@ -18,6 +18,9 @@
                 var timestamp = new Date();
                 $('<div class="message"><div class="timestamp" data-timestamp="' + timestamp + '">' + moment().startOf().fromNow() + '</div><div class="content">' + msg.data + "</div></div>").appendTo("#log");
             });
+            socket.on('clear log', function(msg){
+                $('#log').html('');
+            });
             // event handler for new connections
             socket.on('connect', function() {
                 socket.emit('my event', {data: '<span class="username">Deceit</span>: You\'re connected!'});

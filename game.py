@@ -12,12 +12,12 @@ random.shuffle(deck)
 
 class Game:
 
-    def __init__(self, users):
-
+    def __init__(self, users, room):
         if debug:
             print "Inside __init__"
        # Initialize players
         self.numPlayers = len(users)
+        self.room = room
         self.players = [Player(name, deck) for name in range(self.numPlayers)]
         if debug:
             for i in range(users):
@@ -34,7 +34,17 @@ class Game:
         self.storyteller = 0 #Index of storyteller
         self.highestScore = 0
         self.highestScorer = 0
-        self.storyteller = 0
+        self.inputVars = -1
+        self.prntout = ""
+        self.waiting = False
+
+    def waitforinput(self, printout, variable):
+        self.waiting = True
+        self.prntout = printout
+        while(self.waiting):
+            print("DSLKJDSLK")
+            pass
+        return self.inputVars
 
     # Make sure board and votes are loaded first
     def evaluateBoard(self, storytellerCard):
@@ -119,6 +129,8 @@ class Game:
         self.nextPlayer()
 
     def gameloop(self):
+        ret = []
+
         if debug:
             print "Inside setupNextRound"
 
@@ -126,11 +138,12 @@ class Game:
             print("Start of Loop")
         #Prompt players for cards
         for i in range(self.numPlayers):
-            print "Player %d: Choose a card from your hand: " % i
+            pp = "Player %d: Choose a card from your hand: " % i
+            #ret.append(pp)
             self.players[i].displayHand()
             enteredCardIndex = -1
             while True:
-                enteredCardIndex = input(">> ")
+                enteredCardIndex = self.waitforinput( pp , "cardindex")
                 if enteredCardIndex <= 6 and enteredCardIndex >= 0:
                     break
                 else:
@@ -145,11 +158,11 @@ class Game:
         random.shuffle(self.displayedboard)
 
         #Ask for votes
-        print "Here's the shuffled board: "
-        print self.displayedboard
+        ret.append("Here's the shuffled board: ")
+        ret.append(self.displayedboard)
         for i  in range(self.numPlayers):
             if i != self.storyteller:
-                print "Player %d goes!\nVote on the card that matches the description: " % i
+                ret.append("Player %d goes!\nVote on the card that matches the description: " % i)
                 vote = -1
                 while True:
                     vote = input(">> ")
@@ -157,12 +170,27 @@ class Game:
                         break
             self.votes[i] = input("Vote on the card that matches the description: ")
         #Evaluate board
-        print "Storyteller is Player %d" % self.storyteller
+        ret.append("Storyteller is Player %d" % self.storyteller)
         self.countPoints(self.evaluateBoard(self.hiddenboard[self.storyteller]),self.hiddenboard[self.storyteller])
         self.setupNextRound()
         if debug:
             print("End of Loop")
+        return ret
 
+
+    def update(self):
+        ret = []
+        
+        ret += self.gameloop()
+        # time.sleep(1)
+        if self.highestScore == 30:
+            ret +=  "Winner is Player %d" % self.highestScorer
+            return ret
+        else:
+            ret.append("Current high score is %d by Player %d" % (self.highestScore, self.highestScorer))
+            for i in range(self.numPlayers):
+                ret.append("Player %d has %d points" % (i, self.players[i].score))
+        return ret
 
     def main(self):
         while(True):
