@@ -383,4 +383,4 @@ def test_disconnect():
 port = int(os.environ.get('PORT', 33507))
 
 if __name__ == '__main__':
-    socketio.run(app, port, debug=True)
+    socketio.run(app, str(port), debug=True)
