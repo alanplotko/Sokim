@@ -78,7 +78,7 @@
                 });
 
                 $('form#chat').submit(function(event) {
-                    socket.emit('my room event', {room: $('#join_room').val(), data: $('#room_data').val()});
+                    socket.emit('my room event', { username: $('#username').val(), room: $('#join_room').val(), data: $('#room_data').val()});
                     $('#room_data').val('');
                     return false;
                 });
@@ -112,9 +112,21 @@
                     return false;
                 });
 
-                $('img.deceit_card').click(function(event) {
+                $('#hand').on('click', 'img.deceit_card', function(event) {
                     socket.emit('select card',
-                        { card: event.delegateTarget.currentSrc.split("/cards/")[1], username: $('#username').val(), room: $('#join_room').val() });
+                        { card: event.currentTarget.currentSrc.split("/cards/")[1], username: $('#username').val(), room: $('#join_room').val() }, function(result) {
+                            if (result == 3)
+                            {
+                                $('img.deceit_card').removeClass('selected_card');
+                                $(event.currentTarget).addClass('selected_card');
+                            }
+                            else if (result == 4)
+                            {
+                                $('img.deceit_card').removeClass('selected_card');
+                                $(event.currentTarget).addClass('selected_card');
+                                $('img.deceit_card').unbind('click');
+                            }
+                        });
                     return false;
                 });
             });

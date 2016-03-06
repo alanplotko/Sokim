@@ -27,6 +27,9 @@ class Game:
                 self.players[i].displayHand()
         random.shuffle(self.players)
 
+        # Select host
+        self.host = self.players[0].getName()
+
         # Initialize votes
         self.votes = [0 for i in range(self.numPlayers)]
         self.hiddenboard = [0 for i in range(self.numPlayers)]
@@ -45,6 +48,9 @@ class Game:
 
     def getPending(self):
         return self.pending
+
+    def getHost(self):
+        return self.host
 
     def getPlayerByName(self, name):
         for player in self.players:

@@ -72,10 +72,12 @@ def background_thread():
         if games is not None:
           if state == 0:
             players = games.getPlayers()
-            for player in players:
-              with app.test_request_context('/'):
-                socketio.emit('my hand',
-                     {'user': 'Deceit', 'data': player.displayHand()}, room=player.getName(), namespace='/test')
+            with app.test_request_context('/'):
+                for player in players:
+                    socketio.emit('my hand',
+                         {'user': 'Deceit', 'data': player.displayHand()}, room=player.getName(), namespace='/test')
+                socketio.emit('my response',
+                     {'user': 'Deceit', 'data': 'You have been selected as the host.'}, room=games.getHost(), namespace='/test')
             state += 1
 
       # print("BACKGROUND")
@@ -169,18 +171,24 @@ def update_game(message):
 def select_card(message):
     global games, socketio, state
     if games is not None:
-        if state == 1:
-            playerToModify = games.getPlayerByName(message['username'])
-            print(playerToModify)
-            print(playerToModify.getSelectedCard())
+        playerToModify = games.getPlayerByName(message['username'])
+        if state == 4:
+            with app.test_request_context('/'):
+                socketio.emit('my response', {'user': 'Deceit', 'data': 'Card selection is locked.'}, 
+                    room=playerToModify.getName(), namespace='/test')
+            return state
+        elif state == 3:
             if playerToModify.getSelectedCard() is None:
                 games.decrementPending()
             playerToModify.setSelectedCard(message['card'])
             if games.getPending() == 0:
                 state += 1
-        with app.test_request_context('/'):
-            socketio.emit('my response', {'user': 'Deceit', 'data': 'Card confirmed!'}, 
-                room=playerToModify.getName(), namespace='/test')
+            with app.test_request_context('/'):
+                socketio.emit('my response', {'user': 'Deceit', 'data': 'Card confirmed!'}, 
+                    room=playerToModify.getName(), namespace='/test')
+        return state
+    else:
+        return 0
 
 @socketio.on('join', namespace='/test')
 def join(message):
@@ -244,12 +252,18 @@ def close(message):
     close_room(message['room'])
 
 def parseCommand(message, command):
-    print("PARSING COMMAND")
-    if(command.split()[0] == '/a'):
-        choosecardevent(int(command.split()[1]))
-        #emit('choose card event', {room: message['room'], data: 'hand', choice:int(command.split()[1])});  
-    if(command.split()[0] == '/b'):
-        print("DSL:KD")#emit('choose card event', {room: message['room'], data: 'board', choice:int(command.split()[1])});    
+    global games, socketio, state
+    print(command.split()[0])
+    if command.split()[0] == "/submit":
+        with app.test_request_context('/'):
+            socketio.emit('my response', {'user': 'Deceit', 'data': 'PHRASE: ' + command.split()[1] }, 
+                room=message['room'], namespace='/test')
+        state += 1
+    # if(command.split()[0] == '/a'):
+    #     choosecardevent(int(command.split()[1]))
+    #     #emit('choose card event', {room: message['room'], data: 'hand', choice:int(command.split()[1])});  
+    # if(command.split()[0] == '/b'):
+    #     print("DSL:KD")#emit('choose card event', {room: message['room'], data: 'board', choice:int(command.split()[1])});    
 
 #@socketio.on('choose card event', namespace='/test')
 def choosecardevent(message):
@@ -269,8 +283,8 @@ def choosecardevent(message):
 
 @socketio.on('my room event', namespace='/test')
 def send_room_message(message):
-    print(message['data'])
-    if(message['data'][0] == '/'):
+    global games, state
+    if games is not None and str(message['username']) == str(games.getHost()) and state == 2 and message['data'][0] == "/":
         parseCommand(message, message['data'])
     else:
         session['receive_count'] = session.get('receive_count', 0) + 1

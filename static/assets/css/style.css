@@ -114,3 +114,8 @@ span.admin_msg {
 .divider.header {
     padding-bottom: 20px;
 }
+
+.selected_card {
+    border: 10px solid red;
+    border-radius: 15px;
+}
