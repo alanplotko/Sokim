@@ -147,7 +147,7 @@ class Game:
                 print "ROUND ROBIN"
             # Each player including storyteller gets 3 pts for each vote
             for i in range(self.numPlayers):
-                if self.votes[i]['vote']  == selftorytellerCard:
+                if self.votes[i]['vote']  == storytellerCard:
                     self.awardPlayer(self.votes[i]['owner'], 3)
 
                 else:
