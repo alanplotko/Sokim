@@ -28,10 +28,11 @@ class Game:
         random.shuffle(self.players)
 
         # Select host
-        self.host = self.players[0].getName()
+        self.count = 0
+        self.host = self.players[self.count].getName()
 
         # Initialize votes
-        self.votes = [0 for i in range(self.numPlayers)]
+        self.votes = None
         self.hiddenboard = [0 for i in range(self.numPlayers)]
         self.displayedboard = [0 for i in range(self.numPlayers)]
         self.cardOwners = {}
@@ -55,10 +56,22 @@ class Game:
     def getHost(self):
         return self.host
 
+    def resetForNextRound(self):
+        self.votes = None
+        self.pending = self.numPlayers
+        self.count = (self.count + 1) % self.numPlayers
+        self.host = self.players[self.count].getName()
+        self.hiddenboard = [0 for i in range(self.numPlayers)]
+        self.displayedboard = [0 for i in range(self.numPlayers)]
+        self.cardOwners = {}
+
+        for player in self.players:
+            player.drawCard(self.deck)
+
     def displayVotingHand(self):
         s = ""
-        for url in self.displayedboard:
-            s += '<img class="deceit_card" src="/static/assets/cards/' + url + '" />'
+        for obj in self.displayedboard:
+            s += '<img class="deceit_card" src="/static/assets/cards/' + obj['image'] + '" />'
         return s
 
     def getPlayerByName(self, name):
@@ -75,9 +88,8 @@ class Game:
         for i in range(self.numPlayers):
             self.hiddenboard[i] = cards[i]
 
-    def setVotes(self, votes):
-        for i in range(len(votes)):
-            self.votes[i] = votes[i]
+    def setVotes(self, votesIn):
+        self.votes = votesIn
 
     def awardPlayer(self, player, points):
         for p in self.players:
@@ -104,7 +116,7 @@ class Game:
         #Check if all or none found it
         cardCount = 0 #Evaluate 'all or nothing' rule through card count
         for i in range(len(self.votes)): ##numPlayers
-            if votes[i]['name'] != self.host:
+            if self.votes[i]['owner'] != self.host:
                 if self.votes[i]['vote'] == storytellerCard:
                     cardCount += 1
                     if debug:
@@ -147,7 +159,7 @@ class Game:
                 print "ALL OR NOT"
             for i in range(self.numPlayers):
                 if i != self.storyteller:
-                    self.awardPlayer(players[i].getName(), 2)
+                    self.awardPlayer(self.players[i].getName(), 2)
 
                 if topScore < self.players[i].getScore():
                     topScore = self.players[i].getScore()

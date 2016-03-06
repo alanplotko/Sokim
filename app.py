@@ -52,6 +52,7 @@ inputdone = False
 output = []
 inptt = None
 state = 0
+newRound = False
 
 def input_thread():
     print("INPUT")
@@ -64,7 +65,7 @@ def input_thread():
 
 def background_thread():
     """Example of how to send server generated events to clients."""
-    global games, socketio, state
+    global games, socketio, state, newRound
     count = 0
     while True:
         time.sleep(10)
@@ -78,6 +79,9 @@ def background_thread():
                             {'user': 'Deceit', 'data': player.displayHand()}, room=player.getName(), namespace='/test')
                     socketio.emit('my response',
                         {'user': 'Deceit', 'data': 'You have been selected as the host.'}, room=games.getHost(), namespace='/test')
+                    if newRound:
+                        socketio.emit('stop loading')
+                        newRound = False
                     state += 1
                 elif state == 3:
                     cards = []
@@ -98,21 +102,25 @@ def background_thread():
                     state += 1
                 elif state == 5:
                     cards = []
+                    storytellerCard = games.getPlayerByName(games.getHost()).getSelectedCard()
                     for player in players:
                         obj = {
                             'vote': player.getSelectedCard(),
                             'owner': player.getName()
                         }
+                        print(obj)
                         cards.append(obj)
-                        player.removeCard(player.getSelectedCard())
                         player.setSelectedCard(None)
                     games.resetPending()
-                    games.setDisplayedBoard(cards)
-                    games.setHiddenBoard(cards)
-                    # for player in players:
-                    #     socketio.emit('my voting hand',
-                    #         {'user': 'Deceit', 'data': games.displayVotingHand()}, room=player.getName(), namespace='/test')
-                    state += 1
+                    games.setVotes(cards)
+                    res = games.evaluateBoard(storytellerCard)
+                    games.countPoints(res, storytellerCard)
+                    for player in players:
+                        socketio.emit('my response',
+                            {'user': 'Deceit', 'data': 'Total points so far: ' + str(player.getScore())}, room=player.getName(), namespace='/test')
+                    games.resetForNextRound()
+                    newRound = True
+                    state = 0
 
       # print("BACKGROUND")
       # #print("Game none:"),
