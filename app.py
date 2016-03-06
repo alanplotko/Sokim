@@ -98,7 +98,10 @@ def background_thread():
                             'owner': player.getName()
                         }
                         cards.append(obj)
-                        player.removeCard(player.getSelectedCard())
+                        try:
+                            player.removeCard(player.getSelectedCard())
+                        except ValueError:
+                            pass
                         player.setSelectedCard(None)
                     games.resetPending()
                     games.setDisplayedBoard(cards)
