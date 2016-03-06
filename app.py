@@ -79,10 +79,14 @@ def background_thread():
                     socketio.emit('my response',
                         {'user': 'Deceit', 'data': 'You have been selected as the host.'}, room=games.getHost(), namespace='/test')
                     state += 1
-                if state == 3:
+                elif state == 3:
                     cards = []
                     for player in players:
-                        cards.append(player.getSelectedCard())
+                        obj = {
+                            'image': player.getSelectedCard(),
+                            'owner': player.getName()
+                        }
+                        cards.append(obj)
                         player.removeCard(player.getSelectedCard())
                         player.setSelectedCard(None)
                     games.resetPending()
@@ -91,6 +95,23 @@ def background_thread():
                     for player in players:
                         socketio.emit('my voting hand',
                             {'user': 'Deceit', 'data': games.displayVotingHand()}, room=player.getName(), namespace='/test')
+                    state += 1
+                elif state == 5:
+                    cards = []
+                    for player in players:
+                        obj = {
+                            'vote': player.getSelectedCard(),
+                            'owner': player.getName()
+                        }
+                        cards.append(obj)
+                        player.removeCard(player.getSelectedCard())
+                        player.setSelectedCard(None)
+                    games.resetPending()
+                    games.setDisplayedBoard(cards)
+                    games.setHiddenBoard(cards)
+                    # for player in players:
+                    #     socketio.emit('my voting hand',
+                    #         {'user': 'Deceit', 'data': games.displayVotingHand()}, room=player.getName(), namespace='/test')
                     state += 1
 
       # print("BACKGROUND")
