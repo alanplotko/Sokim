@@ -76,7 +76,7 @@ def rules():
 def test_message(message):
     session['receive_count'] = session.get('receive_count', 0) + 1
     emit('my response',
-         {'data': message['data'], 'count': session['receive_count']})
+         {'user': message['user'], 'data': message['data'], 'count': session['receive_count']})
 
 @socketio.on('my broadcast event', namespace='/test')
 def test_broadcast_message(message):
@@ -91,20 +91,20 @@ def start_game(message):
     if not roomsDict[message['room']]['start'] and len(roomsDict[message['room']]['users']) >= 3:
         roomsDict[message['room']]['start'] = True
         emit('my response',
-             {'data': '<span class="username">Deceit</span>: ' + session['username'] + ' started the game!', 'count': session['receive_count']},
+             {'user': 'Deceit', 'data': session['username'] + ' started the game!', 'count': session['receive_count']},
              room=message['room'])
         emit('my response',
-             {'data': '<span class="username">' + message['room'].capitalize() + 'Bot</span>: Starting the game!', 'count': session['receive_count']},
+             {'user': message['room'].capitalize() + 'Bot', 'data': 'Starting the game!', 'count': session['receive_count']},
              room=message['room'])
         #game = game.Game(roomsDict[message['room']]['users'])
         return True
     elif roomsDict[message['room']]['start']:
         emit('my response',
-             {'data': '<span class="username">Deceit</span>: Game currently in progress!', 'count': session['receive_count']})        
+             {'user': 'Deceit', 'data': 'Game currently in progress!', 'count': session['receive_count']})        
         return False
     else:
         emit('my response',
-             {'data': '<span class="username">Deceit</span>: Not enough players to start the game.', 'count': session['receive_count']})        
+             {'user': 'Deceit', 'data': 'Not enough players to start the game.', 'count': session['receive_count']})        
         return False
 
 @socketio.on('join', namespace='/test')
@@ -119,17 +119,17 @@ def join(message):
     else:
         if len(roomsDict[message['room']]['users']) > 3:
             emit('my response',
-             {'data': '<span class="username">Deceit</span>: Could not join ' + message['room'] + '(room is full)',
+             {'user': 'Deceit', 'data': 'Could not join ' + message['room'] + '(room is full)',
              'count': session['receive_count']})
             return False
     roomsDict[message['room']]['users'].append(session['username'])
     join_room(message['room'])
     session['receive_count'] = session.get('receive_count', 0) + 1
     emit('my response',
-         {'data': '<span class="username">Deceit</span>: Joined ' + message['room'],
+         {'user': 'Deceit', 'data': 'Joined ' + message['room'],
           'count': session['receive_count']})
     emit('my response',
-         {'data': '<span class="username">' + message['room'].capitalize() + 'Bot</span>: ' + session['username'] + ' has entered the room',
+         {'user': message['room'].capitalize() + 'Bot', 'data': session['username'] + ' has entered the room',
           'count': session['receive_count']}, room=message['room'])
     return True
 
@@ -140,10 +140,10 @@ def leave(message):
     roomsDict[message['room']]['users'].remove(session['username'])
     session['receive_count'] = session.get('receive_count', 0) + 1
     emit('my response',
-         {'data': '<span class="username">Deceit</span>: Left ' + message['room'],
+         {'user': 'Deceit', 'data': 'Left ' + message['room'],
           'count': session['receive_count']})
     emit('my response',
-         {'data': '<span class="username">' + message['room'].capitalize() + 'Bot</span>: ' + session['username'] + ' has left the room',
+         {'user': message['room'].capitalize() + 'Bot', 'data': session['username'] + ' has left the room',
           'count': session['receive_count']}, room=message['room'])
 
 @socketio.on('close room', namespace='/test')
@@ -152,7 +152,7 @@ def close(message):
     session['receive_count'] = session.get('receive_count', 0) + 1
     if message['room'] in roomsDict:
         del roomsDict[message['room']]
-    emit('my response', {'data': 'Room ' + message['room'] + ' is closing.',
+    emit('my response', {'user': 'Deceit', 'data': 'Room ' + message['room'] + ' is closing.',
                          'count': session['receive_count']},
          room=message['room'])
     close_room(message['room'])
@@ -161,19 +161,19 @@ def close(message):
 def send_room_message(message):
     session['receive_count'] = session.get('receive_count', 0) + 1
     emit('my response',
-         {'data': '<span class="username">' + session.get('username', '') + '</span>: ' + message['data'], 'count': session['receive_count']},
+         {'user': session.get('username', ''), 'data': message['data'], 'count': session['receive_count']},
          room=message['room'])  
 
 @socketio.on('disconnect request', namespace='/test')
 def disconnect_request():
     session['receive_count'] = session.get('receive_count', 0) + 1
     emit('my response',
-         {'data': '<span class="username">Deceit</span>: Disconnected!', 'count': session['receive_count']})
+         {'user': 'Deceit', 'data': 'Disconnected!', 'count': session['receive_count']})
     disconnect()
 
 @socketio.on('connect', namespace='/test')
 def test_connect():
-    emit('my response', {'data': '<span class="username">Deceit</span>: Establishing connection...', 'count': 0})
+    emit('my response', {'user': 'Deceit', 'data': 'Establishing connection...', 'count': 0})
 
 @socketio.on('disconnect', namespace='/test')
 def test_disconnect():

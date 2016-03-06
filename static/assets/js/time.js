@@ -1,6 +1,6 @@
 $(document).ready(function() {
     update = function() {
-        var times = $('div.message .timestamp').toArray();
+        var times = $('div#log .comment .timestamp').toArray();
         times.forEach(function(time) {
             $(time).hide().html(moment(new Date($(time).attr('data-timestamp')).toISOString()).fromNow()).fadeIn(1000);
         });
