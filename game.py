@@ -135,7 +135,6 @@ class Game:
                     break
                 else:
                     print "Invalid card"
-
             enteredCard = self.players[i].removeCard(enteredCardIndex)
             self.hiddenboard[i] = enteredCard
             self.cardOwners[enteredCard] = i #Associating card to owner
@@ -153,9 +152,9 @@ class Game:
                 vote = -1
                 while True:
                     vote = input(">> ")
-                    if vote <= 6 and vote >= 0:
+                    if vote <= 6 and vote >= 0 and i != self.cardOwners[self.displayedboard[vote]]:
                         break
-            self.votes[i] = input("Vote on the card that matches the description: ")
+                self.votes[i] = vote
         #Evaluate board
         print "Storyteller is Player %d" % self.storyteller
         self.countPoints(self.evaluateBoard(self.hiddenboard[self.storyteller]),self.hiddenboard[self.storyteller])
@@ -179,5 +178,6 @@ class Game:
         return
 
 if __name__ == "__main__":
-    deceit = Game()
+    uzers = [0, 1, 2]
+    deceit = Game(uzers)
     deceit.main()
