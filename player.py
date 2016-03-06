@@ -6,6 +6,7 @@ class Player:
         self.score = 0
         self.name = name
         self.deck = deck
+        self.selectedCard = None
         for i in range(6):
             if not self.deck:
                 print "Deck is empty" #Placeholder respone
@@ -14,6 +15,12 @@ class Player:
 
     def getName(self):
         return self.name
+
+    def getSelectedCard(self):
+        return self.selectedCard
+
+    def setSelectedCard(self, card):
+        self.selectedCard = card
 
     def drawCard(self, deck):
         if len(self.hand) <= 6:

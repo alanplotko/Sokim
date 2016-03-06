@@ -19,6 +19,7 @@ class Game:
         self.room = room
         self.deck = Deck('static/assets/cards/').getDeck()
         self.players = [Player(users[name], self.deck) for name in range(self.numPlayers)]
+        self.pending = self.numPlayers
         print(self.players)
         if debug:
             for i in range(users):
@@ -41,6 +42,17 @@ class Game:
 
     def getPlayers(self):
         return self.players
+
+    def getPending(self):
+        return self.pending
+
+    def getPlayerByName(self, name):
+        for player in self.players:
+            if player.getName() == name:
+                return player
+
+    def decrementPending(self):
+        self.pending -= 1
 
     def getRoom(self):
         return self.room

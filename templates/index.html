@@ -111,6 +111,12 @@
                     });
                     return false;
                 });
+
+                $('img.deceit_card').click(function(event) {
+                    socket.emit('select card',
+                        { card: event.delegateTarget.currentSrc.split("/cards/")[1], username: $('#username').val(), room: $('#join_room').val() });
+                    return false;
+                });
             });
         </script>
     </head>
@@ -151,7 +157,7 @@
             </form>
             <button id="disconnect" class="ui red button">Leave Room</button>
             <button id="start_game" class="ui blue button">Start Game</button>
-            <div id="log_grid" class="ui grid">
+            <div id="log_grid" class="ui centered grid">
                 <div class="six wide column">
                     <h2 class="ui horizontal divider header">
                         <i class="comments outline icon"></i>
@@ -161,7 +167,7 @@
                         <div id="log" class="ui comments"></div>
                     </div>
                 </div>
-                <div id="hand_section" class="ten wide centered column">
+                <div id="hand_section" class="ten wide centered column row">
                     <h2 class="ui horizontal divider header">
                         <i class="columns icon"></i>
                         Your Hand

@@ -97,10 +97,6 @@ span.admin_msg {
     overflow-y: auto;
 }
 
-#hand_section {
-    text-align: center;
-}
-
 /*===============
  * Cards
 =================*/
@@ -110,8 +106,9 @@ span.admin_msg {
 }
 
 .deceit_card {
-    width: 150px;
+    width: 200px;
     margin-right: 10px;
+    cursor: pointer;
 }
 
 .divider.header {

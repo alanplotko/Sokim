@@ -165,6 +165,22 @@ def start_game(message):
 def update_game(message):
     print("sadlkjsaldkjslkdjlskajdl")
 
+@socketio.on('select card', namespace='/test')
+def select_card(message):
+    global games, socketio, state
+    if games is not None:
+        if state == 1:
+            playerToModify = games.getPlayerByName(message['username'])
+            print(playerToModify)
+            print(playerToModify.getSelectedCard())
+            if playerToModify.getSelectedCard() is None:
+                games.decrementPending()
+            playerToModify.setSelectedCard(message['card'])
+            if games.getPending() == 0:
+                state += 1
+        with app.test_request_context('/'):
+            socketio.emit('my response', {'user': 'Deceit', 'data': 'Card confirmed!'}, 
+                room=playerToModify.getName(), namespace='/test')
 
 @socketio.on('join', namespace='/test')
 def join(message):
