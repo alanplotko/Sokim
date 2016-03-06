@@ -128,58 +128,64 @@ class Game:
 
         self.nextPlayer()
 
-    def gameloop(self):
-        ret = []
+    # def gameloop(self):
+        # ret = []
+        # if debug:
+            # print "Inside setupNextRound"
+        # if debug:
+            # print("Start of Loop")
+        # #Prompt players for cards
+        # for i in range(self.numPlayers):
+            # pp = "Player %d: Choose a card from your hand: " % i
+            # #ret.append(pp)
+            # self.players[i].displayHand()
+            # enteredCardIndex = -1
+            # while True:
+                # enteredCardIndex = self.waitforinput( pp , "cardindex")
+                # if enteredCardIndex <= 6 and enteredCardIndex >= 0:
+                    # break
+                # else:
+                    # print "Invalid card"
+            # enteredCard = self.players[i].removeCard(enteredCardIndex)
+            # self.hiddenboard[i] = enteredCard
+            # self.cardOwners[enteredCard] = i #Associating card to owner
+            # if debug:
+                # print "You entered %d, which is the card [%d]" % (enteredCardIndex, enteredCard)
+        # self.displayedboard = self.cardOwners.keys()
+        # random.shuffle(self.displayedboard)
 
-        if debug:
-            print "Inside setupNextRound"
+        # #Ask for votes
+        # ret.append("Here's the shuffled board: ")
+        # ret.append(self.displayedboard)
+        # for i  in range(self.numPlayers):
+            # if i != self.storyteller:
+                # ret.append("Player %d goes!\nVote on the card that matches the description: " % i)
+                # vote = -1
+                # while True:
+                    # vote = input(">> ")
+                    # if vote <= 6 and vote >= 0 and i != self.cardOwners[self.displayedboard[vote]]:
+                        # break
+                # self.votes[i] = vote
+        # #Evaluate board
+        # ret.append("Storyteller is Player %d" % self.storyteller)
+        # self.countPoints(self.evaluateBoard(self.hiddenboard[self.storyteller]),self.hiddenboard[self.storyteller])
+        # self.setupNextRound()
+        # if debug:
+            # print("End of Loop")
+        # return ret
 
-        if debug:
-            print("Start of Loop")
-        #Prompt players for cards
-        for i in range(self.numPlayers):
-            pp = "Player %d: Choose a card from your hand: " % i
-            #ret.append(pp)
-            self.players[i].displayHand()
-            enteredCardIndex = -1
-            while True:
-                enteredCardIndex = self.waitforinput( pp , "cardindex")
-                if enteredCardIndex <= 6 and enteredCardIndex >= 0:
-                    break
-                else:
-                    print "Invalid card"
-            enteredCard = self.players[i].removeCard(enteredCardIndex)
+    def playerChooseCard(self, playerIndex, cardIndex):
+        if enteredCardIndex <= 6 and enteredCardIndex >= 0:
+            enteredCard = self.players[playerIndex].removeCard(cardIndex)
             self.hiddenboard[i] = enteredCard
             self.cardOwners[enteredCard] = i #Associating card to owner
-            if debug:
-                print "You entered %d, which is the card [%d]" % (enteredCardIndex, enteredCard)
-        self.displayedboard = self.cardOwners.keys()
-        random.shuffle(self.displayedboard)
 
-        #Ask for votes
-        ret.append("Here's the shuffled board: ")
-        ret.append(self.displayedboard)
-        for i  in range(self.numPlayers):
-            if i != self.storyteller:
-                ret.append("Player %d goes!\nVote on the card that matches the description: " % i)
-                vote = -1
-                while True:
-                    vote = input(">> ")
-                    if vote <= 6 and vote >= 0 and i != self.cardOwners[self.displayedboard[vote]]:
-                        break
+    def playerVote(self, playerIndex):
+        if vote <= 6 and vote >= 0 and i != self.cardOwners[self.displayedboard[vote]]:
                 self.votes[i] = vote
-        #Evaluate board
-        ret.append("Storyteller is Player %d" % self.storyteller)
-        self.countPoints(self.evaluateBoard(self.hiddenboard[self.storyteller]),self.hiddenboard[self.storyteller])
-        self.setupNextRound()
-        if debug:
-            print("End of Loop")
-        return ret
-
 
     def update(self):
         ret = []
-        
         ret += self.gameloop()
         # time.sleep(1)
         if self.highestScore == 30:
