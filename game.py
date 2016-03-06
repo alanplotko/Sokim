@@ -49,13 +49,31 @@ class Game:
     def getPending(self):
         return self.pending
 
+    def resetPending(self):
+        self.pending = self.numPlayers
+
     def getHost(self):
         return self.host
+
+    def displayVotingHand(self):
+        s = ""
+        for url in self.displayedboard:
+            s += '<img class="deceit_card" src="/static/assets/cards/' + url + '" />'
+        return s
 
     def getPlayerByName(self, name):
         for player in self.players:
             if player.getName() == name:
                 return player
+
+    def setDisplayedBoard(self, cards):
+        for i in range(self.numPlayers):
+            self.displayedboard[i] = cards[i]
+        random.shuffle(self.displayedboard)
+
+    def setHiddenBoard(self, cards):
+        for i in range(self.numPlayers):
+            self.hiddenboard[i] = cards[i]
 
     def decrementPending(self):
         self.pending -= 1

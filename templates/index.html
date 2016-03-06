@@ -40,8 +40,24 @@
                         + msg.user + '</a><div class="metadata"><span class="date" data-timestamp="' 
                         + timestamp + '">' + moment().startOf().fromNow() + '</span></div>' + 
                         '<div class="text"><span class="admin_msg">Loaded a new hand to your right.</span></div></div></div>').prependTo("#log");
-                    $('div#hand').html('');
-                    $('div#hand').html(msg.data)
+                    $('div#hand_stage').html('');
+                    $('div#hand_stage').html(msg.data)
+                    $("#hand_loader").removeClass('active');
+                    $("#hand_loader div").addClass('disabled');
+                });
+                socket.on('my voting hand', function(msg) {
+                    var timestamp = new Date();
+                    if (msg.user == 'Deceit')
+                    {
+                        msg.user = '<span class="admin">Deceit</span>';
+                    }
+
+                    $('<div class="comment"><div class="content"><a class="author">' 
+                        + msg.user + '</a><div class="metadata"><span class="date" data-timestamp="' 
+                        + timestamp + '">' + moment().startOf().fromNow() + '</span></div>' + 
+                        '<div class="text"><span class="admin_msg">Loaded the voting hand to your right.</span></div></div></div>').prependTo("#log");
+                    $('div#hand_stage').html('');
+                    $('div#hand_stage').html(msg.data)
                     $("#hand_loader").removeClass('active');
                     $("#hand_loader div").addClass('disabled');
                 });
@@ -87,8 +103,8 @@
                     socket.emit('start_game', {room: $('#join_room').val()}, function(result) {
                         if (result)
                         {
-                        $("#hand_loader").addClass('active');
-                        $("#hand_loader div").removeClass('disabled');
+                            $("#hand_loader").addClass('active');
+                            $("#hand_loader div").removeClass('disabled');
                             $('button#start_game').hide();
                         }
                     });
@@ -115,16 +131,28 @@
                 $('#hand').on('click', 'img.deceit_card', function(event) {
                     socket.emit('select card',
                         { card: event.currentTarget.currentSrc.split("/cards/")[1], username: $('#username').val(), room: $('#join_room').val() }, function(result) {
-                            if (result == 3)
+                            if (result == 2)
                             {
                                 $('img.deceit_card').removeClass('selected_card');
                                 $(event.currentTarget).addClass('selected_card');
                             }
-                            else if (result == 4)
+                            else if (result == 3)
                             {
                                 $('img.deceit_card').removeClass('selected_card');
                                 $(event.currentTarget).addClass('selected_card');
                                 $('img.deceit_card').unbind('click');
+                            }
+                            else if (result == -2)
+                            {
+                                $("#hand_loader").addClass('active');
+                                $("#hand_loader div").removeClass('disabled');
+                                $('#hand_section h2').html('<i class="columns icon"></i> Voting Stage');
+                            }
+                            else if (result == -3)
+                            {
+                                $("#hand_loader").addClass('active');
+                                $("#hand_loader div").removeClass('disabled');
+                                $('#hand_section h2').html('<i class="columns icon"></i> Your Hand');
                             }
                         });
                     return false;
@@ -188,8 +216,10 @@
                         <div id="hand_loader" class="ui dimmer">
                             <div class="ui large text disabled loader">Loading</div>
                         </div>
-                        <i class="massive game icon"></i><br />
-                        <h2>Game Not Started</h2>
+                        <div id="hand_stage">
+                            <i class="massive game icon"></i><br />
+                            <h2>Game Not Started</h2>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -69,16 +69,29 @@ def background_thread():
     while True:
         time.sleep(10)
         count += 1
-        if games is not None:
-          if state == 0:
-            players = games.getPlayers()
-            with app.test_request_context('/'):
-                for player in players:
-                    socketio.emit('my hand',
-                         {'user': 'Deceit', 'data': player.displayHand()}, room=player.getName(), namespace='/test')
-                socketio.emit('my response',
-                     {'user': 'Deceit', 'data': 'You have been selected as the host.'}, room=games.getHost(), namespace='/test')
-            state += 1
+        with app.test_request_context('/'):
+            if games is not None:
+                players = games.getPlayers()
+                if state == 0:
+                    for player in players:
+                        socketio.emit('my hand',
+                            {'user': 'Deceit', 'data': player.displayHand()}, room=player.getName(), namespace='/test')
+                    socketio.emit('my response',
+                        {'user': 'Deceit', 'data': 'You have been selected as the host.'}, room=games.getHost(), namespace='/test')
+                    state += 1
+                if state == 3:
+                    cards = []
+                    for player in players:
+                        cards.append(player.getSelectedCard())
+                        player.removeCard(player.getSelectedCard())
+                        player.setSelectedCard(None)
+                    games.resetPending()
+                    games.setDisplayedBoard(cards)
+                    games.setHiddenBoard(cards)
+                    for player in players:
+                        socketio.emit('my voting hand',
+                            {'user': 'Deceit', 'data': games.displayVotingHand()}, room=player.getName(), namespace='/test')
+                    state += 1
 
       # print("BACKGROUND")
       # #print("Game none:"),
@@ -170,22 +183,40 @@ def update_game(message):
 @socketio.on('select card', namespace='/test')
 def select_card(message):
     global games, socketio, state
+    players = games.getPlayers()
     if games is not None:
         playerToModify = games.getPlayerByName(message['username'])
         if state == 4:
+            if playerToModify.getSelectedCard() is None:
+                    games.decrementPending()
+                playerToModify.setSelectedCard(message['card'])
+                with app.test_request_context('/'):
+                    socketio.emit('my response', {'user': 'Deceit', 'data': 'Vote confirmed!'}, 
+                        room=playerToModify.getName(), namespace='/test')
+                    if games.getPending() == 0:
+                        state += 1
+                        socketio.emit('my response', {'user': 'Deceit', 'data': 'Calculating votes...'}, 
+                            room=message['room'], namespace='/test')
+                        # If -2, change 'my hand' text
+                        return -3
+        elif state == 3:
             with app.test_request_context('/'):
                 socketio.emit('my response', {'user': 'Deceit', 'data': 'Card selection is locked.'}, 
                     room=playerToModify.getName(), namespace='/test')
-            return state
-        elif state == 3:
+            return -1
+        elif state == 2:
             if playerToModify.getSelectedCard() is None:
                 games.decrementPending()
             playerToModify.setSelectedCard(message['card'])
-            if games.getPending() == 0:
-                state += 1
             with app.test_request_context('/'):
                 socketio.emit('my response', {'user': 'Deceit', 'data': 'Card confirmed!'}, 
                     room=playerToModify.getName(), namespace='/test')
+                if games.getPending() == 0:
+                    state += 1
+                    socketio.emit('my response', {'user': 'Deceit', 'data': 'Shuffling selected cards for voting stage...'}, 
+                        room=message['room'], namespace='/test')
+                    # If -2, change 'my hand' text
+                    return -2
         return state
     else:
         return 0
@@ -253,10 +284,9 @@ def close(message):
 
 def parseCommand(message, command):
     global games, socketio, state
-    print(command.split()[0])
     if command.split()[0] == "/submit":
         with app.test_request_context('/'):
-            socketio.emit('my response', {'user': 'Deceit', 'data': 'PHRASE: ' + command.split()[1] }, 
+            socketio.emit('my response', {'user': 'Deceit', 'data': 'PHRASE: ' + ' '.join(command.split()[1:]) }, 
                 room=message['room'], namespace='/test')
         state += 1
     # if(command.split()[0] == '/a'):
@@ -284,8 +314,9 @@ def choosecardevent(message):
 @socketio.on('my room event', namespace='/test')
 def send_room_message(message):
     global games, state
-    if games is not None and str(message['username']) == str(games.getHost()) and state == 2 and message['data'][0] == "/":
+    if games is not None and message['username'] == games.getHost() and state == 1 and message['data'][0] == "/":
         parseCommand(message, message['data'])
+        return
     else:
         session['receive_count'] = session.get('receive_count', 0) + 1
         emit('my response',

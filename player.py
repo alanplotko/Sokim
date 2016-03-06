@@ -35,10 +35,8 @@ class Player:
             s += '<img class="deceit_card" src="/static/assets/cards/' + url + '" />'
         return s
 
-    def removeCard(self, index):
-        removedCard = self.hand[index]
-        del self.hand[index]
-        return removedCard
+    def removeCard(self, card):
+        self.hand.remove(card)
 
     def cardsInHand(self):
         return len(self.hand)
