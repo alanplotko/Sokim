@@ -30,13 +30,19 @@
                 }, function() {
                     $('#roomName').html($('#join_room').val() + ' Channel: Chat');
                     $('#user').html($('#username').val());
-                    $.when($('form#join').hide()).then(function() { $('form#chat').show(); });
+                    $.when($('form#join').hide()).then(function() { $('form#chat').show(); $('form#disconnect').show(); });
                 });
                 return false;
             });
 
             $('form#chat').submit(function(event) {
                 socket.emit('my room event', {room: $('#join_room').val(), data: $('#room_data').val()});
+                return false;
+            });
+
+            $('form#disconnect').submit(function(event) {
+                socket.emit('leave', {room: $('#join_room').val()});
+                socket.emit('disconnect request');
                 return false;
             });
         });
@@ -50,11 +56,16 @@
         <input type="text" name="join_room" id="join_room" placeholder="Room Name" pattern="^[A-Za-z0-9]{3,15}$" required>
         <input type="submit" value="Join Room">
     </form>
+    <br />
     <form id="chat" method="POST" action='#'>
         <h2 id="roomName"></h2>
         <div id="user"></div>
         <input type="text" name="room_data" id="room_data" placeholder="Message">
         <input type="submit" value="Send">
+    </form>
+    <br />
+    <form id="disconnect" method="POST" action='#'>
+        <input type="submit" value="Disconnect">
     </form>
     <h2>Messages:</h2>
     <div id="log"></div>

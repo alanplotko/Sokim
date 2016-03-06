@@ -1,4 +1,5 @@
-form#chat {
+form#chat,
+form#disconnect {
     display: none;
 }
 
