@@ -131,12 +131,12 @@
                 $('#hand').on('click', 'img.deceit_card', function(event) {
                     socket.emit('select card',
                         { card: event.currentTarget.currentSrc.split("/cards/")[1], username: $('#username').val(), room: $('#join_room').val() }, function(result) {
-                            if (result == 2)
+                            if (result == 2 || result == 4)
                             {
                                 $('img.deceit_card').removeClass('selected_card');
                                 $(event.currentTarget).addClass('selected_card');
                             }
-                            else if (result == 3)
+                            else if (result == 3 || result == 5)
                             {
                                 $('img.deceit_card').removeClass('selected_card');
                                 $(event.currentTarget).addClass('selected_card');

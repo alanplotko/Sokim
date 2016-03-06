@@ -188,17 +188,17 @@ def select_card(message):
         playerToModify = games.getPlayerByName(message['username'])
         if state == 4:
             if playerToModify.getSelectedCard() is None:
-                    games.decrementPending()
-                playerToModify.setSelectedCard(message['card'])
-                with app.test_request_context('/'):
-                    socketio.emit('my response', {'user': 'Deceit', 'data': 'Vote confirmed!'}, 
-                        room=playerToModify.getName(), namespace='/test')
-                    if games.getPending() == 0:
-                        state += 1
-                        socketio.emit('my response', {'user': 'Deceit', 'data': 'Calculating votes...'}, 
-                            room=message['room'], namespace='/test')
-                        # If -2, change 'my hand' text
-                        return -3
+                games.decrementPending()
+            playerToModify.setSelectedCard(message['card'])
+            with app.test_request_context('/'):
+                socketio.emit('my response', {'user': 'Deceit', 'data': 'Vote confirmed!'}, 
+                    room=playerToModify.getName(), namespace='/test')
+                if games.getPending() == 0:
+                    state += 1
+                    socketio.emit('my response', {'user': 'Deceit', 'data': 'Calculating votes...'}, 
+                        room=message['room'], namespace='/test')
+                    # If -2, change 'my hand' text
+                    return -3
         elif state == 3:
             with app.test_request_context('/'):
                 socketio.emit('my response', {'user': 'Deceit', 'data': 'Card selection is locked.'}, 
