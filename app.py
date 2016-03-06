@@ -380,7 +380,5 @@ def test_connect():
 def test_disconnect():
     print('Client disconnected', request.sid)
 
-port = int(os.environ.get('PORT', 33507))
-
 if __name__ == '__main__':
-    socketio.run(app, str(port), debug=True)
+    socketio.run(app, debug=True)
