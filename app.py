@@ -49,20 +49,9 @@ thread2 = None
 roomsDict = {}
 
 games = None
-inputdone = False
-output = []
 inptt = None
 state = 0
 newRound = False
-
-def input_thread():
-    print("INPUT")
-    if(games is not None):
-        global output 
-        inputdone = False
-        output = games.update()
-        inputdone = True
-    print("END INPUT")
 
 def background_thread():
     """Example of how to send server generated events to clients."""
@@ -160,16 +149,11 @@ def background_thread():
 @app.route('/')
 def index():
     global thread
-    global thread2
     if thread is None:
         thread = Thread(target=background_thread)
         thread.daemon = True
         thread.start()
-    if thread2 is None:
-        thread2 = Thread(target=input_thread)
-        thread2.daemon = True
-        thread2.start()
-    return render_template('index.html', port=port)
+    return render_template('index.html')
 
 @app.route('/rules/')
 def rules():
@@ -385,4 +369,4 @@ def test_disconnect():
 
 
 if __name__ == '__main__':
-    socketio.run(app)
+    socketio.run(app, debug=True)
