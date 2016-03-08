@@ -169,7 +169,7 @@ def index():
         thread2 = Thread(target=input_thread)
         thread2.daemon = True
         thread2.start()
-    return render_template('index.html')
+    return render_template('index.html', port=port)
 
 @app.route('/rules/')
 def rules():
@@ -385,4 +385,4 @@ def test_disconnect():
 
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
+    socketio.run(app)
