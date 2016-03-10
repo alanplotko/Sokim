@@ -4,3 +4,5 @@ Deceit is based off a board game where players essentially attempt to deceive ea
 ### Inspiration
 We were inspired by the board game to make it available online for free for all to play. We hope to continue working on advancing the game mechanics and design to the extent where we can then host it online for all to enjoy.
 
+
+## Winner of "Best FOSS Hack, BrickHack2 Spr2016"
