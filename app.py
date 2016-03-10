@@ -49,8 +49,6 @@ thread2 = None
 roomsDict = {}
 
 games = None
-inputdone = False
-output = []
 inptt = None
 state = 0
 newRound = False
@@ -169,15 +167,10 @@ def background_thread():
 @app.route('/')
 def index():
     global thread
-    global thread2
     if thread is None:
         thread = Thread(target=background_thread)
         thread.daemon = True
         thread.start()
-    if thread2 is None:
-        thread2 = Thread(target=input_thread)
-        thread2.daemon = True
-        thread2.start()
     return render_template('index.html')
 
 @app.route('/rules/')
