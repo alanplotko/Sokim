@@ -11,14 +11,14 @@ if async_mode is None:
         async_mode = 'eventlet'
     except ImportError:
         pass
-    
+
     if async_mode is None:
         try:
             from gevent import monkey
             async_mode = 'gevent'
         except ImportError:
             pass
-    
+
     if async_mode is None:
         async_mode = 'threading'
     print('async_mode is ' + async_mode)
@@ -58,11 +58,18 @@ newRound = False
 def input_thread():
     print("INPUT")
     if(games is not None):
-        global output 
+        global output
         inputdone = False
         output = games.update()
         inputdone = True
     print("END INPUT")
+
+def createScores(playerlist):
+    out = []
+    for player in playerlist:
+        out.append( (player.name, player.score))
+    my_list.sort(key=lambda x: x[1])
+    return out
 
 def background_thread():
     """Example of how to send server generated events to clients."""
@@ -75,6 +82,8 @@ def background_thread():
             if games is not None:
                 players = games.getPlayers()
                 victory = games.getHighestScore()
+                scores = createScores(player)
+                socketio.emit('leaderboard_update', {'data' : scores}, room=player.getName(), namespace='/test')
                 if victory['highestScore'] >= 30:
                     for player in players:
                         socketio.emit('my response',
@@ -196,7 +205,7 @@ def test_broadcast_message(message):
 @socketio.on('start_game', namespace='/test')
 def start_game(message):
     session['receive_count'] = session.get('receive_count', 0) + 1
-    if not roomsDict[message['room']]['start'] and len(roomsDict[message['room']]['users']) >= 3:
+    if not roomsDict[message['room']]['start']:# and len(roomsDict[message['room']]['users']) >= 3:
         roomsDict[message['room']]['start'] = True
         emit('my response',
              {'user': 'Deceit', 'data': session['username'] + ' started the game!', 'count': session['receive_count']},
@@ -209,11 +218,11 @@ def start_game(message):
         return True
     elif roomsDict[message['room']]['start']:
         emit('my response',
-             {'user': 'Deceit', 'data': 'Game currently in progress!', 'count': session['receive_count']})        
+             {'user': 'Deceit', 'data': 'Game currently in progress!', 'count': session['receive_count']})
         return False
     else:
         emit('my response',
-             {'user': 'Deceit', 'data': 'Not enough players to start the game.', 'count': session['receive_count']})        
+             {'user': 'Deceit', 'data': 'Not enough players to start the game.', 'count': session['receive_count']})
         return False
 
 @socketio.on('game_update', namespace='/test')
@@ -231,17 +240,17 @@ def select_card(message):
                 games.decrementPending()
             playerToModify.setSelectedCard(message['card'])
             with app.test_request_context('/'):
-                socketio.emit('my response', {'user': 'Deceit', 'data': 'Vote confirmed!'}, 
+                socketio.emit('my response', {'user': 'Deceit', 'data': 'Vote confirmed!'},
                     room=playerToModify.getName(), namespace='/test')
                 if games.getPending() == 0:
                     state += 1
-                    socketio.emit('my response', {'user': 'Deceit', 'data': 'Calculating votes...'}, 
+                    socketio.emit('my response', {'user': 'Deceit', 'data': 'Calculating votes...'},
                         room=message['room'], namespace='/test')
                     # If -2, change 'my hand' text
                     return -3
         elif state == 3:
             with app.test_request_context('/'):
-                socketio.emit('my response', {'user': 'Deceit', 'data': 'Card selection is locked.'}, 
+                socketio.emit('my response', {'user': 'Deceit', 'data': 'Card selection is locked.'},
                     room=playerToModify.getName(), namespace='/test')
             return -1
         elif state == 2:
@@ -249,11 +258,11 @@ def select_card(message):
                 games.decrementPending()
             playerToModify.setSelectedCard(message['card'])
             with app.test_request_context('/'):
-                socketio.emit('my response', {'user': 'Deceit', 'data': 'Card confirmed!'}, 
+                socketio.emit('my response', {'user': 'Deceit', 'data': 'Card confirmed!'},
                     room=playerToModify.getName(), namespace='/test')
                 if games.getPending() == 0:
                     state += 1
-                    socketio.emit('my response', {'user': 'Deceit', 'data': 'Shuffling selected cards for voting stage...'}, 
+                    socketio.emit('my response', {'user': 'Deceit', 'data': 'Shuffling selected cards for voting stage...'},
                         room=message['room'], namespace='/test')
                     # If -2, change 'my hand' text
                     return -2
@@ -326,14 +335,14 @@ def parseCommand(message, command):
     global games, socketio, state
     if command.split()[0] == "/submit":
         with app.test_request_context('/'):
-            socketio.emit('my response', {'user': 'Deceit', 'data': 'PHRASE: ' + ' '.join(command.split()[1:]) }, 
+            socketio.emit('my response', {'user': 'Deceit', 'data': 'PHRASE: ' + ' '.join(command.split()[1:]) },
                 room=message['room'], namespace='/test')
         state += 1
     # if(command.split()[0] == '/a'):
     #     choosecardevent(int(command.split()[1]))
-    #     #emit('choose card event', {room: message['room'], data: 'hand', choice:int(command.split()[1])});  
+    #     #emit('choose card event', {room: message['room'], data: 'hand', choice:int(command.split()[1])});
     # if(command.split()[0] == '/b'):
-    #     print("DSL:KD")#emit('choose card event', {room: message['room'], data: 'board', choice:int(command.split()[1])});    
+    #     print("DSL:KD")#emit('choose card event', {room: message['room'], data: 'board', choice:int(command.split()[1])});
 
 #@socketio.on('choose card event', namespace='/test')
 def choosecardevent(message):
@@ -361,7 +370,7 @@ def send_room_message(message):
         session['receive_count'] = session.get('receive_count', 0) + 1
         emit('my response',
          {'user': session.get('username', ''), 'data': message['data'], 'count': session['receive_count']},
-         room=message['room'])  
+         room=message['room'])
 
 @socketio.on('clear log', namespace='/test')
 def clear_log():
