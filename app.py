@@ -66,7 +66,7 @@ def createScores(playerlist):
     out = []
     for player in playerlist:
         out.append( (player.name, player.score))
-    my_list.sort(key=lambda x: x[1])
+    out.sort(key=lambda x: x[1], reverse=True)
     return out
 
 def background_thread():
@@ -80,8 +80,8 @@ def background_thread():
             if games is not None:
                 players = games.getPlayers()
                 victory = games.getHighestScore()
-                scores = createScores(player)
-                socketio.emit('leaderboard_update', {'data' : scores}, room=player.getName(), namespace='/test')
+                scores = createScores(players)
+                socketio.emit('leaderboard_update', {'data' : scores}, room=games.getHost(), namespace='/test')
                 if victory['highestScore'] >= 30:
                     for player in players:
                         socketio.emit('my response',

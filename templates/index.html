@@ -71,9 +71,24 @@
                 socket.on('connect', function() {
                     socket.emit('my event', {user: 'Deceit', data: 'You\'re connected!'});
                 });
-                socket.on('leaderboard_update', function(message) {
+
+                function getStringPlayer(message)
+                {
                     console.log(message)
+                    out = "";
+                    for(i=0; i<message.data.length; i++)
+                    {  
+                        out += "<li>" + message.data[i][0] + ": " + message.data[i][1] + "</li>";
+                    }
+                    console.log(out)
+                    return out;
+                }
+
+                socket.on('leaderboard_update', function(message) {
+                    // its just an array of arrays [i][0] is name, [i][1] is score 
+                    //console.log(message)
                     $('#leader_box').html('')
+                    $('<ul>' + getStringPlayer(message) + '</ul>').prependTo("#leader_box");
                 });
 
 
