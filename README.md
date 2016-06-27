@@ -1,4 +1,4 @@
-![Deceit]('docs/img/logo.png')
+![Deceit](docs/img/logo.png)
 
 # Deceit
 Deceit is based off a board game where players essentially attempt to deceive each other in their card predictions. We have created a deck of cards from over 100 paintings and art submissions to the Internet (i.e. Reddit) for players to draw from. Each turn, the host will select a phrase and card. Everyone else will also contribute a card. The cards are shuffled and then displayed for all to see. Everyone will place their votes as to which card belongs to the host. Every incorrect guess earns the host some points. On the other hand, correct guesses earn the guesser some points. The first to reach the threshold wins!
